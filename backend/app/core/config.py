@@ -23,13 +23,13 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = "researchatlas"
 
     # JWT Configuration
-    JWT_SECRET_KEY: str = "change-this-in-production"
+    JWT_SECRET_KEY: str = "change-this-in-production-use-strong-random-secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # Default Admin
-    DEFAULT_ADMIN_EMAIL: str = ""
-    DEFAULT_ADMIN_PASSWORD: str = ""
+    DEFAULT_ADMIN_EMAIL: str = "admin@raisoni.net"
+    DEFAULT_ADMIN_PASSWORD: str = "Admin@123"
 
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"

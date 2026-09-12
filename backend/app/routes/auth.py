@@ -4,6 +4,7 @@ ResearchAtlas - Authentication Routes
 API endpoints for registration, login, and current user retrieval.
 """
 
+import traceback
 from fastapi import APIRouter, HTTPException, status, Depends
 
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, MessageResponse
@@ -34,7 +35,7 @@ async def register(request: RegisterRequest):
         )
 
     try:
-        user = await auth_service.register_user(
+        await auth_service.register_user(
             full_name=request.full_name,
             email=request.email,
             password=request.password,
@@ -59,9 +60,7 @@ async def register(request: RegisterRequest):
             detail=str(e),
         )
     except Exception as e:
-        # Log the actual error for debugging
-        import traceback
-        print(f"Registration error: {str(e)}")
+        print(f"[ERROR] Registration failed: {str(e)}")
         print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -82,7 +81,7 @@ async def login(request: LoginRequest):
             email=request.email,
             password=request.password,
         )
-        return TokenResponse(**result)
+        return result
     except PermissionError as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -94,9 +93,11 @@ async def login(request: LoginRequest):
             detail=str(e),
         )
     except Exception as e:
+        print(f"[ERROR] Login failed: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during login. Please try again.",
+            detail=f"Login failed: {str(e)}",
         )
 
 

@@ -25,9 +25,18 @@ async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown events."""
     # Startup
     print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    await connect_to_mongodb()
-    await initialize_database()
+    print(f"📊 Environment: {'DEBUG' if settings.DEBUG else 'PRODUCTION'}")
+    
+    try:
+        await connect_to_mongodb()
+        await initialize_database()
+        print(f"✅ {settings.APP_NAME} started successfully")
+    except Exception as e:
+        print(f"❌ Failed to start {settings.APP_NAME}: {str(e)}")
+        raise
+    
     yield
+    
     # Shutdown
     await close_mongodb_connection()
     print(f"👋 {settings.APP_NAME} shutdown complete")
@@ -57,6 +66,10 @@ app.add_middleware(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Handle unhandled exceptions gracefully."""
+    import traceback
+    print(f"[ERROR] Unhandled exception: {str(exc)}")
+    print(traceback.format_exc())
+    
     return JSONResponse(
         status_code=500,
         content={

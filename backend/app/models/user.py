@@ -49,9 +49,9 @@ class UserModel:
         password_hash: str,
         role: str,
         department: str,
-        orcid_id: str,
-        scopus_id: str,
-        wos_id: str,
+        orcid_id: str = "",
+        scopus_id: str = "",
+        wos_id: str = "",
     ) -> dict:
         """
         Create a new user document for insertion.
@@ -62,9 +62,9 @@ class UserModel:
             password_hash: Hashed password
             role: User role
             department: User department
-            orcid_id: ORCID researcher identifier
-            scopus_id: Scopus author identifier
-            wos_id: Web of Science researcher identifier
+            orcid_id: ORCID researcher identifier (optional)
+            scopus_id: Scopus author identifier (optional)
+            wos_id: Web of Science researcher identifier (optional)
 
         Returns:
             Complete user document dictionary
@@ -76,9 +76,9 @@ class UserModel:
             "password_hash": password_hash,
             "role": role,
             "department": department,
-            "orcid_id": orcid_id,
-            "scopus_id": scopus_id,
-            "wos_id": wos_id,
+            "orcid_id": orcid_id or "",
+            "scopus_id": scopus_id or "",
+            "wos_id": wos_id or "",
             "is_active": True,
             "created_at": now,
             "updated_at": now,
@@ -99,6 +99,21 @@ class UserModel:
         if user_doc is None:
             return None
 
+        # Safely get datetime fields
+        created_at = user_doc.get("created_at")
+        updated_at = user_doc.get("updated_at")
+        
+        # Convert datetime to ISO format string
+        if isinstance(created_at, datetime):
+            created_at_str = created_at.isoformat()
+        else:
+            created_at_str = str(created_at) if created_at else ""
+            
+        if isinstance(updated_at, datetime):
+            updated_at_str = updated_at.isoformat()
+        else:
+            updated_at_str = str(updated_at) if updated_at else ""
+
         response = {
             "id": str(user_doc["_id"]),
             "full_name": user_doc.get("full_name", ""),
@@ -109,8 +124,8 @@ class UserModel:
             "scopus_id": user_doc.get("scopus_id", ""),
             "wos_id": user_doc.get("wos_id", ""),
             "is_active": user_doc.get("is_active", True),
-            "created_at": user_doc.get("created_at", "").isoformat() if isinstance(user_doc.get("created_at"), datetime) else str(user_doc.get("created_at", "")),
-            "updated_at": user_doc.get("updated_at", "").isoformat() if isinstance(user_doc.get("updated_at"), datetime) else str(user_doc.get("updated_at", "")),
+            "created_at": created_at_str,
+            "updated_at": updated_at_str,
         }
         return response
 

@@ -60,20 +60,23 @@ class AuthService:
         if existing_user:
             raise ValueError("An account with this email already exists")
 
-        # Check for duplicate ORCID ID
-        existing_orcid = await collection.find_one({"orcid_id": orcid_id})
-        if existing_orcid:
-            raise ValueError("An account with this ORCID ID already exists")
+        # Check for duplicate ORCID ID (only if not empty)
+        if orcid_id:
+            existing_orcid = await collection.find_one({"orcid_id": orcid_id})
+            if existing_orcid:
+                raise ValueError("An account with this ORCID ID already exists")
 
-        # Check for duplicate Scopus ID
-        existing_scopus = await collection.find_one({"scopus_id": scopus_id})
-        if existing_scopus:
-            raise ValueError("An account with this Scopus ID already exists")
+        # Check for duplicate Scopus ID (only if not empty)
+        if scopus_id:
+            existing_scopus = await collection.find_one({"scopus_id": scopus_id})
+            if existing_scopus:
+                raise ValueError("An account with this Scopus ID already exists")
 
-        # Check for duplicate WOS ID
-        existing_wos = await collection.find_one({"wos_id": wos_id})
-        if existing_wos:
-            raise ValueError("An account with this Web of Science ID already exists")
+        # Check for duplicate WOS ID (only if not empty)
+        if wos_id:
+            existing_wos = await collection.find_one({"wos_id": wos_id})
+            if existing_wos:
+                raise ValueError("An account with this Web of Science ID already exists")
 
         # Hash password
         password_hash = hash_password(password)
@@ -105,7 +108,7 @@ class AuthService:
             password: Plain-text password
 
         Returns:
-            Dictionary with access_token and user data
+            Dictionary with access_token and user data in TokenResponse format
 
         Raises:
             ValueError: If credentials are invalid or account is deactivated
@@ -133,6 +136,7 @@ class AuthService:
         }
         access_token = create_access_token(data=token_data)
 
+        # Return in TokenResponse format
         return {
             "access_token": access_token,
             "token_type": "bearer",

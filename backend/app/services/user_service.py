@@ -35,8 +35,12 @@ class UserService:
         collection = self._get_collection()
         try:
             user = await collection.find_one({"_id": ObjectId(user_id)})
-            return user
-        except Exception:
+            if user:
+                # Convert to response format for consistency
+                return UserModel.to_response(user)
+            return None
+        except Exception as e:
+            print(f"[ERROR] get_user_by_id failed: {str(e)}")
             return None
 
     async def get_all_users(self) -> List[Dict]:
@@ -71,13 +75,13 @@ class UserService:
             return UserModel.to_response(user)
         return None
 
-    async def update_user(self, user_id: str, update_data: Dict) -> Optional[Dict]:
+    async def update_user(self, user_id: str, update_ Dict) -> Optional[Dict]:
         """
         Update a user's information.
 
         Args:
             user_id: User's ObjectId string
-            update_data: Dictionary of fields to update
+            update_ Dictionary of fields to update
 
         Returns:
             Updated user response or None if not found
@@ -87,7 +91,7 @@ class UserService:
         # Remove None values
         update_data = {k: v for k, v in update_data.items() if v is not None}
 
-        if not update_data:
+        if not update_
             return await self.get_user_by_id_response(user_id)
 
         # Add updated_at timestamp
