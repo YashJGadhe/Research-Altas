@@ -44,10 +44,37 @@ export const ROUTES = Object.freeze({
   LOGIN: '/login',
   REGISTER: '/register',
   UNAUTHORIZED: '/unauthorized',
+  
+  // Admin routes
   ADMIN_DASHBOARD: '/admin-dashboard',
+  ADMIN_FACULTY: '/admin/faculty',
+  ADMIN_CITATIONS: '/admin/citations',
+  ADMIN_RESEARCH_PAPERS: '/admin/research-papers',
+  ADMIN_NOTIFICATIONS: '/admin/notifications',
+  ADMIN_ANALYTICS: '/admin/analytics',
+  ADMIN_REPORTS: '/admin/reports',
+  ADMIN_MANAGE_FACULTY: '/admin/manage-faculty',
+  
+  // Faculty routes
   FACULTY_DASHBOARD: '/faculty-dashboard',
+  
+  // Student routes
   STUDENT_DASHBOARD: '/student-dashboard',
 });
+
+/**
+ * All admin routes for centralized access
+ */
+export const ADMIN_ROUTES = Object.freeze([
+  ROUTES.ADMIN_DASHBOARD,
+  ROUTES.ADMIN_FACULTY,
+  ROUTES.ADMIN_CITATIONS,
+  ROUTES.ADMIN_RESEARCH_PAPERS,
+  ROUTES.ADMIN_NOTIFICATIONS,
+  ROUTES.ADMIN_ANALYTICS,
+  ROUTES.ADMIN_REPORTS,
+  ROUTES.ADMIN_MANAGE_FACULTY,
+]);
 
 export const ROLE_DASHBOARD_MAP = Object.freeze({
   [ROLES.ADMIN]: ROUTES.ADMIN_DASHBOARD,
@@ -61,20 +88,6 @@ export const PASSWORD_REQUIREMENTS = 'Password must be at least 8 characters lon
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * ORCID ID validation pattern
- * Format: 0000-0000-0000-0000 or 0000000000000000
- */
 export const ORCID_REGEX = /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$|^\d{16}$/;
-
-/**
- * Scopus ID validation pattern
- * Must be numeric, 5-15 digits
- */
 export const SCOPUS_REGEX = /^\d{5,15}$/;
-
-/**
- * Web of Science ID validation pattern
- * Format: A-0000-0000 or similar alphanumeric format
- */
 export const WOS_REGEX = /^[A-Z]-\d{4}-\d{4}$|^[A-Za-z0-9\-]{5,20}$/;
