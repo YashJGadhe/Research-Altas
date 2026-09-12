@@ -71,6 +71,9 @@ class FacultyService:
         email: str,
         password: str,
         department: str,
+        orcid_id: str,
+        scopus_id: str,
+        wos_id: str,
     ) -> Dict:
         """
         Create a new faculty member (admin operation).
@@ -80,6 +83,9 @@ class FacultyService:
             email: Faculty member's email
             password: Plain-text password (will be hashed)
             department: Department
+            orcid_id: ORCID researcher identifier
+            scopus_id: Scopus author identifier
+            wos_id: Web of Science researcher identifier
 
         Returns:
             Created faculty response dictionary
@@ -94,6 +100,21 @@ class FacultyService:
         if existing:
             raise ValueError("An account with this email already exists")
 
+        # Check for duplicate ORCID ID
+        existing_orcid = await collection.find_one({"orcid_id": orcid_id})
+        if existing_orcid:
+            raise ValueError("An account with this ORCID ID already exists")
+
+        # Check for duplicate Scopus ID
+        existing_scopus = await collection.find_one({"scopus_id": scopus_id})
+        if existing_scopus:
+            raise ValueError("An account with this Scopus ID already exists")
+
+        # Check for duplicate WOS ID
+        existing_wos = await collection.find_one({"wos_id": wos_id})
+        if existing_wos:
+            raise ValueError("An account with this Web of Science ID already exists")
+
         # Create user document
         now = datetime.now(timezone.utc)
         user_doc = {
@@ -102,6 +123,9 @@ class FacultyService:
             "password_hash": hash_password(password),
             "role": "faculty",
             "department": department,
+            "orcid_id": orcid_id,
+            "scopus_id": scopus_id,
+            "wos_id": wos_id,
             "is_active": True,
             "created_at": now,
             "updated_at": now,
@@ -112,13 +136,13 @@ class FacultyService:
 
         return UserModel.to_response(user_doc)
 
-    async def update_faculty(self, faculty_id: str, update_data: Dict) -> Optional[Dict]:
+    async def update_faculty(self, faculty_id: str, update_ Dict) -> Optional[Dict]:
         """
         Update a faculty member's information.
 
         Args:
             faculty_id: Faculty user's ObjectId string
-            update_data: Fields to update
+            update_ Fields to update
 
         Returns:
             Updated faculty response or None
@@ -128,7 +152,7 @@ class FacultyService:
         # Remove None values
         update_data = {k: v for k, v in update_data.items() if v is not None}
 
-        if not update_data:
+        if not update_
             return await self.get_faculty_by_id(faculty_id)
 
         # Ensure we only update faculty

@@ -30,6 +30,9 @@ class AuthService:
         password: str,
         role: str,
         department: str,
+        orcid_id: str,
+        scopus_id: str,
+        wos_id: str,
     ) -> Dict:
         """
         Register a new user.
@@ -40,6 +43,9 @@ class AuthService:
             password: Plain-text password (will be hashed)
             role: User role
             department: User department
+            orcid_id: ORCID researcher identifier
+            scopus_id: Scopus author identifier
+            wos_id: Web of Science researcher identifier
 
         Returns:
             Created user document (without password_hash)
@@ -54,6 +60,21 @@ class AuthService:
         if existing_user:
             raise ValueError("An account with this email already exists")
 
+        # Check for duplicate ORCID ID
+        existing_orcid = await collection.find_one({"orcid_id": orcid_id})
+        if existing_orcid:
+            raise ValueError("An account with this ORCID ID already exists")
+
+        # Check for duplicate Scopus ID
+        existing_scopus = await collection.find_one({"scopus_id": scopus_id})
+        if existing_scopus:
+            raise ValueError("An account with this Scopus ID already exists")
+
+        # Check for duplicate WOS ID
+        existing_wos = await collection.find_one({"wos_id": wos_id})
+        if existing_wos:
+            raise ValueError("An account with this Web of Science ID already exists")
+
         # Hash password
         password_hash = hash_password(password)
 
@@ -64,6 +85,9 @@ class AuthService:
             password_hash=password_hash,
             role=role,
             department=department,
+            orcid_id=orcid_id,
+            scopus_id=scopus_id,
+            wos_id=wos_id,
         )
 
         # Insert into database

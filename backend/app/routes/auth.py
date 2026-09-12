@@ -40,6 +40,9 @@ async def register(request: RegisterRequest):
             password=request.password,
             role=request.role,
             department=request.department,
+            orcid_id=request.orcid_id,
+            scopus_id=request.scopus_id,
+            wos_id=request.wos_id,
         )
         return MessageResponse(
             message="Registration successful. You can now login.",

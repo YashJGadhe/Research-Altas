@@ -1,9 +1,5 @@
 /**
  * ResearchAtlas - Admin Dashboard (Phase 1 Placeholder)
- * 
- * This is a placeholder dashboard for Phase 1.
- * Future prompts will build the actual admin dashboard functionality.
- * Authentication and authorization are fully functional.
  */
 
 import React from 'react';
@@ -52,6 +48,43 @@ const AdminDashboard = () => {
           <p className="text-gray-500 mt-2">Welcome back, {currentUser?.full_name}</p>
         </div>
 
+        {/* User Profile Card */}
+        <div className="card mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Profile</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Name</p>
+              <p className="font-medium text-gray-900">{currentUser?.full_name}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Email</p>
+              <p className="font-medium text-gray-900">{currentUser?.email}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Department</p>
+              <p className="font-medium text-gray-900">{DEPARTMENT_LABELS[currentUser?.department] || currentUser?.department}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Role</p>
+              <p className="font-medium text-gray-900">{ROLE_LABELS[currentUser?.role]}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+              <p className="text-xs text-blue-600">ORCID ID</p>
+              <p className="font-medium text-blue-900 font-mono text-sm">{currentUser?.orcid_id || '—'}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+              <p className="text-xs text-blue-600">Scopus ID</p>
+              <p className="font-medium text-blue-900 font-mono text-sm">{currentUser?.scopus_id || '—'}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+              <p className="text-xs text-blue-600">WoS ID</p>
+              <p className="font-medium text-blue-900 font-mono text-sm">{currentUser?.wos_id || '—'}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="card">
@@ -90,27 +123,17 @@ const AdminDashboard = () => {
         </div>
 
         {/* Phase 1 Notice */}
-        <div className="card border-blue-200 bg-blue-50">
+        <div className="card border-purple-200 bg-purple-50">
           <div className="flex items-start">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
               <span className="text-xl">ℹ️</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-1">Phase 1 — Authentication Foundation</h3>
-              <p className="text-blue-700 text-sm">
+              <h3 className="text-lg font-semibold text-purple-900 mb-1">Phase 1 — Authentication Foundation</h3>
+              <p className="text-purple-700 text-sm">
                 The authentication and authorization system is fully operational. Dashboard functionality,
                 user management, faculty management, and research modules will be implemented in subsequent phases.
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-lg p-3 border border-blue-100">
-                  <p className="text-xs text-gray-500">Your Role</p>
-                  <p className="font-medium text-gray-900">{ROLE_LABELS[currentUser?.role]}</p>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-blue-100">
-                  <p className="text-xs text-gray-500">Department</p>
-                  <p className="font-medium text-gray-900">{DEPARTMENT_LABELS[currentUser?.department] || currentUser?.department}</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

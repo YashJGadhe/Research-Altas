@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { login as loginApi } from '../../api/authApi';
 import { useAuth } from '../../hooks/useAuth';
-import { ROLE_DASHBOARD_MAP, ROUTES, EMAIL_REGEX } from '../../utils/constants';
+import { ROLE_DASHBOARD_MAP, ROUTES, EMAIL_REGEX, ROLE_EMAIL_DOMAINS, ROLES, ROLE_LABELS } from '../../utils/constants';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -108,7 +108,7 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="you@example.com"
+                placeholder="you@raisoni.net"
                 autoComplete="email"
                 required
               />
@@ -150,7 +150,16 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          {/* Email Domain Info */}
+          <div className="mt-6 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+            <p className="text-xs text-blue-700 font-medium mb-1">Accepted Email Domains:</p>
+            <ul className="text-xs text-blue-600 space-y-0.5">
+              <li>• Admin & Faculty: <strong>@raisoni.net</strong></li>
+              <li>• Students: <strong>@ghrce.raisoni.net</strong></li>
+            </ul>
+          </div>
+
+          <div className="mt-4 text-center">
             <p className="text-gray-600 text-sm">
               Don't have an account?{' '}
               <Link to={ROUTES.REGISTER} className="text-blue-600 hover:text-blue-700 font-medium">

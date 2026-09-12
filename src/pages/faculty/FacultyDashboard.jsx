@@ -1,8 +1,5 @@
 /**
  * ResearchAtlas - Faculty Dashboard (Phase 1 Placeholder)
- * 
- * Placeholder dashboard for faculty users.
- * Future prompts will build actual faculty dashboard functionality.
  */
 
 import React from 'react';
@@ -49,6 +46,43 @@ const FacultyDashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Faculty Dashboard</h1>
           <p className="text-gray-500 mt-2">Welcome back, {currentUser?.full_name}</p>
+        </div>
+
+        {/* User Profile Card */}
+        <div className="card mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Profile</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Name</p>
+              <p className="font-medium text-gray-900">{currentUser?.full_name}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Email</p>
+              <p className="font-medium text-gray-900">{currentUser?.email}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Department</p>
+              <p className="font-medium text-gray-900">{DEPARTMENT_LABELS[currentUser?.department] || currentUser?.department}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Role</p>
+              <p className="font-medium text-gray-900">{ROLE_LABELS[currentUser?.role]}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+              <p className="text-xs text-emerald-600">ORCID ID</p>
+              <p className="font-medium text-emerald-900 font-mono text-sm">{currentUser?.orcid_id || '—'}</p>
+            </div>
+            <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+              <p className="text-xs text-emerald-600">Scopus ID</p>
+              <p className="font-medium text-emerald-900 font-mono text-sm">{currentUser?.scopus_id || '—'}</p>
+            </div>
+            <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+              <p className="text-xs text-emerald-600">WoS ID</p>
+              <p className="font-medium text-emerald-900 font-mono text-sm">{currentUser?.wos_id || '—'}</p>
+            </div>
+          </div>
         </div>
 
         {/* Status Cards */}
@@ -100,16 +134,6 @@ const FacultyDashboard = () => {
                 You are authenticated as a Faculty member. Your personal research profile, publications,
                 platform profiles, and notifications will be available in the next phase.
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                  <p className="text-xs text-gray-500">Your Role</p>
-                  <p className="font-medium text-gray-900">{ROLE_LABELS[currentUser?.role]}</p>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-emerald-100">
-                  <p className="text-xs text-gray-500">Department</p>
-                  <p className="font-medium text-gray-900">{DEPARTMENT_LABELS[currentUser?.department] || currentUser?.department}</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

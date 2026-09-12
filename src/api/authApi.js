@@ -9,7 +9,7 @@ import apiClient from './apiClient';
 
 /**
  * Register a new user
- * @param {Object} userData - { full_name, email, password, confirm_password, role, department }
+ * @param {Object} userData - { full_name, email, password, confirm_password, role, department, orcid_id, scopus_id, wos_id }
  * @returns {Promise} Registration response
  */
 export const register = async (userData) => {
@@ -20,6 +20,9 @@ export const register = async (userData) => {
     confirm_password: userData.confirm_password,
     role: userData.role,
     department: userData.department,
+    orcid_id: userData.orcid_id,
+    scopus_id: userData.scopus_id,
+    wos_id: userData.wos_id,
   });
   return response.data;
 };

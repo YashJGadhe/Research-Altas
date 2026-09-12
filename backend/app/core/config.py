@@ -34,10 +34,24 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
+    # Email Domain Restrictions
+    ADMIN_EMAIL_DOMAIN: str = "raisoni.net"
+    FACULTY_EMAIL_DOMAIN: str = "raisoni.net"
+    STUDENT_EMAIL_DOMAIN: str = "ghrce.raisoni.net"
+
     @property
     def cors_origins_list(self) -> list:
         """Parse CORS origins from comma-separated string."""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def role_email_domains(self) -> dict:
+        """Get email domain restrictions per role."""
+        return {
+            "admin": self.ADMIN_EMAIL_DOMAIN,
+            "faculty": self.FACULTY_EMAIL_DOMAIN,
+            "student": self.STUDENT_EMAIL_DOMAIN,
+        }
 
     class Config:
         env_file = ".env"

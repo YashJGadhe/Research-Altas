@@ -22,6 +22,9 @@ async def create_indexes():
     await users_collection.create_index("role")
     await users_collection.create_index("department")
     await users_collection.create_index("is_active")
+    await users_collection.create_index("orcid_id", unique=True, sparse=True)
+    await users_collection.create_index("scopus_id", unique=True, sparse=True)
+    await users_collection.create_index("wos_id", unique=True, sparse=True)
 
     print("✅ Database indexes created")
 
@@ -55,6 +58,9 @@ async def init_default_admin():
         "password_hash": hash_password(settings.DEFAULT_ADMIN_PASSWORD),
         "role": "admin",
         "department": "CSE",
+        "orcid_id": "0000-0000-0000-0000",
+        "scopus_id": "00000000000",
+        "wos_id": "A-0000-0000",
         "is_active": True,
         "created_at": datetime.now(timezone.utc),
         "updated_at": datetime.now(timezone.utc),

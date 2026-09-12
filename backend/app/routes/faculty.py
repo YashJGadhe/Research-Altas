@@ -60,6 +60,9 @@ async def create_faculty(
             email=request.email,
             password=request.password,
             department=request.department,
+            orcid_id=request.orcid_id,
+            scopus_id=request.scopus_id,
+            wos_id=request.wos_id,
         )
         return faculty
     except ValueError as e:
@@ -87,7 +90,7 @@ async def update_faculty(
     """
     update_data = request.model_dump(exclude_none=True)
 
-    if not update_data:
+    if not update_
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No fields to update",

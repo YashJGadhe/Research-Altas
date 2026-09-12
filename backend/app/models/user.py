@@ -25,6 +25,9 @@ class UserModel:
         password_hash: str - Bcrypt hashed password (NEVER exposed in API)
         role: str - User role (admin, faculty, student)
         department: str - User's department
+        orcid_id: str - ORCID researcher identifier
+        scopus_id: str - Scopus author identifier
+        wos_id: str - Web of Science researcher identifier
         is_active: bool - Whether the account is active
         created_at: datetime - Account creation timestamp
         updated_at: datetime - Last update timestamp
@@ -46,6 +49,9 @@ class UserModel:
         password_hash: str,
         role: str,
         department: str,
+        orcid_id: str,
+        scopus_id: str,
+        wos_id: str,
     ) -> dict:
         """
         Create a new user document for insertion.
@@ -56,6 +62,9 @@ class UserModel:
             password_hash: Hashed password
             role: User role
             department: User department
+            orcid_id: ORCID researcher identifier
+            scopus_id: Scopus author identifier
+            wos_id: Web of Science researcher identifier
 
         Returns:
             Complete user document dictionary
@@ -67,6 +76,9 @@ class UserModel:
             "password_hash": password_hash,
             "role": role,
             "department": department,
+            "orcid_id": orcid_id,
+            "scopus_id": scopus_id,
+            "wos_id": wos_id,
             "is_active": True,
             "created_at": now,
             "updated_at": now,
@@ -93,6 +105,9 @@ class UserModel:
             "email": user_doc.get("email", ""),
             "role": user_doc.get("role", ""),
             "department": user_doc.get("department", ""),
+            "orcid_id": user_doc.get("orcid_id", ""),
+            "scopus_id": user_doc.get("scopus_id", ""),
+            "wos_id": user_doc.get("wos_id", ""),
             "is_active": user_doc.get("is_active", True),
             "created_at": user_doc.get("created_at", "").isoformat() if isinstance(user_doc.get("created_at"), datetime) else str(user_doc.get("created_at", "")),
             "updated_at": user_doc.get("updated_at", "").isoformat() if isinstance(user_doc.get("updated_at"), datetime) else str(user_doc.get("updated_at", "")),
