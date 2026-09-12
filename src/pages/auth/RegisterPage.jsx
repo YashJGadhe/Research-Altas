@@ -163,19 +163,34 @@ const RegisterPage = () => {
         navigate(ROUTES.LOGIN);
       }, 2000);
     } catch (err) {
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response);
+      
       if (err.response?.data?.detail) {
         const detail = err.response.data.detail;
         if (typeof detail === 'string') {
           setError(detail);
         } else if (Array.isArray(detail)) {
-          setError(detail.map(d => d.msg || d.message || JSON.stringify(d)).join(', '));
+          const messages = detail.map(d => {
+            if (typeof d === 'string') return d;
+            if (d.msg) return d.msg;
+            if (d.message) return d.message;
+            return JSON.stringify(d);
+          });
+          setError(messages.join('. '));
         } else {
-          setError('Registration failed. Please try again.');
+          setError('Registration failed. Please check your input and try again.');
         }
       } else if (err.response?.status === 409) {
         setError('An account with this email or ID already exists.');
       } else if (err.response?.status === 422) {
-        setError('Invalid input. Please check all fields.');
+        setError('Invalid input. Please check all fields and try again.');
+      } else if (err.response?.status === 403) {
+        setError(err.response.data?.detail || 'Registration not allowed. Please check your email domain.');
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later or contact support.');
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        setError('Cannot connect to server. Please check if the backend is running.');
       } else {
         setError('Registration failed. Please try again.');
       }
