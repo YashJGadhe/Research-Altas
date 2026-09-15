@@ -21,6 +21,7 @@ import {
 } from '../../api/citationApi';
 import { MOCK_CITATION_RECORDS, MOCK_CITATION_HISTORY, MOCK_FETCH_RESULT } from '../../api/mockCitationData';
 import { isDemoMode } from '../../api/mockApi';
+import { exportCitationsToExcel, exportHistoryToExcel } from '../../utils/excelExport';
 
 const CitationManagement = () => {
   const { currentUser } = useAuth();
@@ -246,6 +247,46 @@ const CitationManagement = () => {
     }
   };
 
+  const handleDownloadExcel = () => {
+    try {
+      if (citations.length === 0) {
+        setError('No data available to export');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
+      const filename = exportCitationsToExcel(citations, 'citation_data');
+      setSuccess(`Excel file downloaded: ${filename}`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Failed to export Excel file');
+      console.error(err);
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const handleDownloadHistory = () => {
+    try {
+      if (!historyModal.record || historyModal.history.length === 0) {
+        setError('No history data available to export');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
+      const filename = exportHistoryToExcel(
+        historyModal.history,
+        historyModal.record.faculty_name,
+        'citation_history'
+      );
+      setSuccess(`History file downloaded: ${filename}`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Failed to export history file');
+      console.error(err);
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
   if (loading && citations.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -290,6 +331,16 @@ const CitationManagement = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Refresh
+        </button>
+        <button
+          onClick={handleDownloadExcel}
+          disabled={loading || citations.length === 0}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download Excel
         </button>
       </div>
 
@@ -753,7 +804,17 @@ const CitationManagement = () => {
                 </div>
               )}
 
-              <div className="mt-6">
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleDownloadHistory}
+                  disabled={historyModal.history.length === 0}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download History
+                </button>
                 <button
                   onClick={() => setHistoryModal({ open: false, record: null, history: [] })}
                   className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
