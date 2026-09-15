@@ -86,13 +86,17 @@ const ResearchPapers = () => {
         return;
       }
       
-      const data = await getAllCitations();
-      // Extract unique faculty from citation records
-      const faculty = data.records.map(record => ({
-        id: record.faculty_id,
-        name: record.faculty_name,
-        orcid_id: record.orcid?.id || ''
+      // Import faculty API to get actual faculty members
+      const { getAllFaculty } = await import('../../api/facultyApi');
+      const data = await getAllFaculty();
+      
+      // Map faculty data to the format needed
+      const faculty = data.faculty.map(f => ({
+        id: f.id,  // This is the actual MongoDB ObjectId
+        name: f.full_name,
+        orcid_id: f.orcid_id || ''
       }));
+      
       setFacultyList(faculty);
     } catch (err) {
       setError('Failed to load faculty list');
