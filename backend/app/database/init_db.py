@@ -139,6 +139,222 @@ async def init_default_admin():
     print(f"✅ Default admin created: {settings.DEFAULT_ADMIN_EMAIL}")
 
 
+async def seed_citation_demo_data():
+    """
+    Seed demo citation data for 17 CSE faculty members.
+    Only runs if citation_records collection is empty.
+    """
+    from app.models.citation import CitationRecord
+    
+    collection = get_collection(CitationRecord.COLLECTION_NAME)
+    
+    # Check if data already exists
+    existing_count = await collection.count_documents({})
+    if existing_count > 0:
+        print(f"ℹ️  Citation records already exist ({existing_count} records). Skipping demo data seed.")
+        return
+    
+    print("📊 Seeding demo citation data for 17 CSE faculty members...")
+    
+    # Demo data for 17 faculty members
+    demo_faculty = [
+        {
+            "faculty_id": "faculty_001",
+            "faculty_name": "Dr. Mangala Madankar",
+            "web_of_science": {"papers": 14, "citations": 39, "h_index": 4, "profile_url": ""},
+            "scopus": {"papers": 46, "citations": 285, "h_index": 10, "profile_url": ""},
+            "google_scholar": {"papers": 80, "citations": 541, "h_index": 13, "i10_index": 15, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_002",
+            "faculty_name": "Dr. Apeksha Sakhare",
+            "web_of_science": {"papers": 11, "citations": 51, "h_index": 2, "profile_url": ""},
+            "scopus": {"papers": 41, "citations": 236, "h_index": 10, "profile_url": ""},
+            "google_scholar": {"papers": 74, "citations": 626, "h_index": 12, "i10_index": 19, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_003",
+            "faculty_name": "Dr. Girish Talmale",
+            "web_of_science": {"papers": 17, "citations": 103, "h_index": 4, "profile_url": ""},
+            "scopus": {"papers": 25, "citations": 220, "h_index": 7, "profile_url": ""},
+            "google_scholar": {"papers": 48, "citations": 428, "h_index": 8, "i10_index": 6, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_004",
+            "faculty_name": "Prof. Prashant K. Khobragade",
+            "web_of_science": {"papers": 3, "citations": 6, "h_index": 2, "profile_url": ""},
+            "scopus": {"papers": 42, "citations": 656, "h_index": 13, "profile_url": ""},
+            "google_scholar": {"papers": 61, "citations": 834, "h_index": 16, "i10_index": 24, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_005",
+            "faculty_name": "Dr. Atiya Khan",
+            "web_of_science": {"papers": 3, "citations": 300, "h_index": 2, "profile_url": ""},
+            "scopus": {"papers": 24, "citations": 650, "h_index": 9, "profile_url": ""},
+            "google_scholar": {"papers": 29, "citations": 656, "h_index": 9, "i10_index": 8, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_006",
+            "faculty_name": "Prof. Neha Purohit",
+            "web_of_science": {"papers": 3, "citations": 4, "h_index": 1, "profile_url": ""},
+            "scopus": {"papers": 23, "citations": 194, "h_index": 8, "profile_url": ""},
+            "google_scholar": {"papers": 30, "citations": 270, "h_index": 7, "i10_index": 7, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_007",
+            "faculty_name": "Dr. Prasad Lokulwar",
+            "web_of_science": {"papers": 1, "citations": 5, "h_index": 1, "profile_url": ""},
+            "scopus": {"papers": 41, "citations": 240, "h_index": 10, "profile_url": ""},
+            "google_scholar": {"papers": 50, "citations": 374, "h_index": 12, "i10_index": 14, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_008",
+            "faculty_name": "Dr. Shruti Thakur",
+            "web_of_science": {"papers": 2, "citations": 5, "h_index": 2, "profile_url": ""},
+            "scopus": {"papers": 22, "citations": 95, "h_index": 6, "profile_url": ""},
+            "google_scholar": {"papers": 47, "citations": 135, "h_index": 7, "i10_index": 5, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_009",
+            "faculty_name": "Dr. Sarika Khandelwal",
+            "web_of_science": {"papers": 15, "citations": 41, "h_index": 3, "profile_url": ""},
+            "scopus": {"papers": 58, "citations": 247, "h_index": 9, "profile_url": ""},
+            "google_scholar": {"papers": 85, "citations": 375, "h_index": 11, "i10_index": 15, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_010",
+            "faculty_name": "Prof. Ashish Soni",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 7, "citations": 12, "h_index": 2, "profile_url": ""},
+            "google_scholar": {"papers": 14, "citations": 20, "h_index": 3, "i10_index": 0, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_011",
+            "faculty_name": "Prof. Anuradha Joshi",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 6, "citations": 17, "h_index": 2, "profile_url": ""},
+            "google_scholar": {"papers": 4, "citations": 22, "h_index": 2, "i10_index": 1, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_012",
+            "faculty_name": "Prof. Imran Ahmad",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 6, "citations": 0, "h_index": 0, "profile_url": ""},
+            "google_scholar": {"papers": 4, "citations": 0, "h_index": 0, "i10_index": 0, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_013",
+            "faculty_name": "Prof. Mrunali Dhone",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 13, "citations": 253, "h_index": 4, "profile_url": ""},
+            "google_scholar": {"papers": 16, "citations": 286, "h_index": 6, "i10_index": 4, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_014",
+            "faculty_name": "Dr. Aditya Turankar",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 8, "citations": 12, "h_index": 2, "profile_url": ""},
+            "google_scholar": {"papers": 20, "citations": 632, "h_index": 7, "i10_index": 7, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_015",
+            "faculty_name": "Prof. Sonali Bhardwaj",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "google_scholar": {"papers": 0, "citations": 0, "h_index": 0, "i10_index": 0, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_016",
+            "faculty_name": "Prof. Wani Bisen",
+            "web_of_science": {"papers": 2, "citations": 11, "h_index": 1, "profile_url": ""},
+            "scopus": {"papers": 5, "citations": 39, "h_index": 3, "profile_url": ""},
+            "google_scholar": {"papers": 10, "citations": 66, "h_index": 5, "i10_index": 2, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        },
+        {
+            "faculty_id": "faculty_017",
+            "faculty_name": "Dr. Sonia Bajaj",
+            "web_of_science": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "scopus": {"papers": 0, "citations": 0, "h_index": 0, "profile_url": ""},
+            "google_scholar": {"papers": 10, "citations": 15, "h_index": 2, "i10_index": 0, "profile_url": ""},
+            "publons_url": "", "scopus_url": "", "google_scholar_url": "", "researchgate_url": "",
+            "orcid": {"id": "", "url": ""},
+            "openalex": {"id": "", "url": ""},
+            "source_status": {"web_of_science": "not_configured", "scopus": "not_configured", "google_scholar": "not_configured", "orcid": "not_configured", "openalex": "not_configured"}
+        }
+    ]
+    
+    # Insert demo data
+    for faculty_data in demo_faculty:
+        record = CitationRecord.create_record(**faculty_data)
+        await collection.insert_one(record)
+    
+    print(f"✅ Successfully seeded {len(demo_faculty)} faculty citation records")
+
+
 async def initialize_database():
     """
     Full database initialization.
@@ -148,6 +364,7 @@ async def initialize_database():
         await create_indexes()
         await migrate_existing_users()
         await init_default_admin()
+        await seed_citation_demo_data()
         print("✅ Database initialization complete")
     except Exception as e:
         print(f"❌ Database initialization failed: {str(e)}")

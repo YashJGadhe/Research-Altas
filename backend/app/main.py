@@ -18,6 +18,7 @@ from app.database.init_db import initialize_database
 from app.routes.auth import router as auth_router
 from app.routes.user import router as user_router
 from app.routes.faculty import router as faculty_router
+from app.routes.citations import router as citations_router
 
 
 @asynccontextmanager
@@ -87,6 +88,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(faculty_router)
+app.include_router(citations_router)
 
 
 # Health check endpoint
