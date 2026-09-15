@@ -14,6 +14,8 @@ import {
   getFacultyWorkTypes
 } from '../../api/researchPaperApi';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import { isDemoMode } from '../../api/mockApi';
+import { MOCK_RESEARCH_PAPERS, MOCK_FETCH_RESULT, MOCK_STATISTICS } from '../../api/mockResearchPapers';
 
 const ResearchPapers = () => {
   const { currentUser } = useAuth();
@@ -66,6 +68,24 @@ const ResearchPapers = () => {
   const loadFacultyList = async () => {
     try {
       setLoading(true);
+      
+      // Check if in demo mode
+      if (isDemoMode()) {
+        // Use mock faculty data
+        const mockFaculty = Object.keys(MOCK_RESEARCH_PAPERS).map(facultyId => {
+          const papers = MOCK_RESEARCH_PAPERS[facultyId];
+          const firstPaper = papers[0];
+          return {
+            id: facultyId,
+            name: firstPaper.faculty_name,
+            orcid_id: '0000-0000-0000-0000' // Mock ORCID ID
+          };
+        });
+        setFacultyList(mockFaculty);
+        setLoading(false);
+        return;
+      }
+      
       const data = await getAllCitations();
       // Extract unique faculty from citation records
       const faculty = data.records.map(record => ({
@@ -87,6 +107,43 @@ const ResearchPapers = () => {
 
     try {
       setLoading(true);
+      
+      // Check if in demo mode
+      if (isDemoMode()) {
+        // Use mock publications data
+        const mockPapers = MOCK_RESEARCH_PAPERS[selectedFaculty] || [];
+        
+        // Apply filters
+        let filteredPapers = [...mockPapers];
+        
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          filteredPapers = filteredPapers.filter(paper => 
+            paper.title.toLowerCase().includes(query) ||
+            paper.authors.some(author => author.toLowerCase().includes(query)) ||
+            paper.publication_venue.toLowerCase().includes(query) ||
+            (paper.doi && paper.doi.toLowerCase().includes(query))
+          );
+        }
+        
+        if (selectedWorkType) {
+          filteredPapers = filteredPapers.filter(paper => 
+            paper.work_type === selectedWorkType
+          );
+        }
+        
+        // Apply sorting
+        if (sortBy === 'year_desc') {
+          filteredPapers.sort((a, b) => b.year - a.year);
+        } else if (sortBy === 'year_asc') {
+          filteredPapers.sort((a, b) => a.year - b.year);
+        }
+        
+        setPublications(filteredPapers);
+        setLoading(false);
+        return;
+      }
+      
       const params = {};
       
       if (searchQuery) params.search = searchQuery;
@@ -107,6 +164,35 @@ const ResearchPapers = () => {
     if (!selectedFaculty) return;
 
     try {
+      // Check if in demo mode
+      if (isDemoMode()) {
+        // Calculate statistics from mock data
+        const mockPapers = MOCK_RESEARCH_PAPERS[selectedFaculty] || [];
+        const stats = {
+          total_publications: mockPapers.length,
+          by_source: { 'ORCID': mockPapers.length },
+          by_work_type: {},
+          year_range: { min: null, max: null },
+          last_fetched: new Date().toISOString()
+        };
+        
+        // Calculate work type counts
+        mockPapers.forEach(paper => {
+          const workType = paper.work_type;
+          stats.by_work_type[workType] = (stats.by_work_type[workType] || 0) + 1;
+        });
+        
+        // Calculate year range
+        const years = mockPapers.map(p => p.year).filter(y => y);
+        if (years.length > 0) {
+          stats.year_range.min = Math.min(...years);
+          stats.year_range.max = Math.max(...years);
+        }
+        
+        setStatistics(stats);
+        return;
+      }
+      
       const data = await getPublicationStatistics(selectedFaculty);
       setStatistics(data.statistics);
     } catch (err) {
@@ -118,6 +204,15 @@ const ResearchPapers = () => {
     if (!selectedFaculty) return;
 
     try {
+      // Check if in demo mode
+      if (isDemoMode()) {
+        // Extract unique work types from mock data
+        const mockPapers = MOCK_RESEARCH_PAPERS[selectedFaculty] || [];
+        const uniqueWorkTypes = [...new Set(mockPapers.map(paper => paper.work_type))];
+        setWorkTypes(uniqueWorkTypes);
+        return;
+      }
+      
       const data = await getFacultyWorkTypes(selectedFaculty);
       setWorkTypes(data.work_types);
     } catch (err) {
@@ -140,6 +235,44 @@ const ResearchPapers = () => {
       setFetching(true);
       setError('');
       setSuccess('');
+      
+      // Check if in demo mode
+      if (isDemoMode()) {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Use mock data
+        const mockPapers = MOCK_RESEARCH_PAPERS[selectedFaculty] || [];
+        const result = {
+          ...MOCK_FETCH_RESULT,
+          faculty_id: selectedFaculty,
+          faculty_name: mockPapers[0]?.faculty_name || 'Unknown',
+          fetched_count: mockPapers.length,
+          duplicates_removed: 0,
+          unique_count: mockPapers.length,
+          stored_count: mockPapers.length,
+          status: 'success',
+          success: true
+        };
+        
+        setFetchStatus({
+          fetched_count: result.fetched_count,
+          duplicates_removed: result.duplicates_removed,
+          unique_count: result.unique_count,
+          stored_count: result.stored_count,
+          status: result.status
+        });
+        
+        setSuccess(`Successfully fetched ${result.unique_count} publications from ORCID (Demo Mode)`);
+        
+        // Reload publications and statistics
+        await loadPublications();
+        await loadStatistics();
+        await loadWorkTypes();
+        
+        setFetching(false);
+        return;
+      }
       
       const result = await fetchOrcidPublications(selectedFaculty);
       
@@ -174,6 +307,10 @@ const ResearchPapers = () => {
   };
 
   const hasOrcidId = () => {
+    // In demo mode, always return true to enable fetch button
+    if (isDemoMode()) {
+      return true;
+    }
     const faculty = facultyList.find(f => f.id === selectedFaculty);
     return faculty && faculty.orcid_id;
   };
