@@ -138,6 +138,21 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Demo Mode Notice */}
+      {localStorage.getItem('demoMode') === 'true' && (
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎮</span>
+            <div>
+              <h3 className="text-sm font-semibold text-purple-900">Demo Mode Active</h3>
+              <p className="text-xs text-purple-700">
+                You are viewing a demo preview. Connect to the backend for full functionality.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Phase 2 Notice */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
         <div className="flex items-start gap-4">

@@ -75,10 +75,18 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
       <div className="w-full max-w-md">
+        {/* Demo Banner */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white text-center shadow-lg">
+          <p className="text-sm font-semibold flex items-center justify-center gap-2">
+            <span>🎮</span> Preview Demo Mode <span>🎮</span>
+          </p>
+          <p className="text-xs opacity-90 mt-0.5">Click "Login as Admin" below to explore</p>
+        </div>
+
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg mb-4">
             <span className="text-3xl">🌐</span>
           </div>
@@ -157,6 +165,69 @@ const LoginPage = () => {
               <li>• Admin & Faculty: <strong>@raisoni.net</strong></li>
               <li>• Students: <strong>@ghrce.raisoni.net</strong></li>
             </ul>
+          </div>
+
+          {/* Demo Mode Quick Login */}
+          <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+            <p className="text-xs text-purple-700 font-semibold mb-3 flex items-center gap-1">
+              <span>🎮</span> Demo Mode - Quick Login
+            </p>
+            
+            {/* One-click Admin Login */}
+            <button
+              type="button"
+              onClick={async () => {
+                setError('');
+                setLoading(true);
+                try {
+                  const response = await loginApi({ email: 'admin@test.com', password: 'Admin@123' });
+                  login(response);
+                  navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
+                } catch (err) {
+                  setError('Demo login failed. Please try again.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading}
+              className="w-full mb-3 py-2.5 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>👑</span>
+              <span>Login as Admin (Demo)</span>
+            </button>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ email: 'admin@test.com', password: 'Admin@123' });
+                }}
+                className="w-full text-left px-3 py-2 bg-white hover:bg-purple-50 border border-purple-200 rounded-md text-xs transition-colors"
+              >
+                <span className="font-semibold text-purple-700">👑 Admin:</span>
+                <span className="text-gray-600 ml-1">admin@test.com / Admin@123</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ email: 'faculty@test.com', password: 'Faculty@123' });
+                }}
+                className="w-full text-left px-3 py-2 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-md text-xs transition-colors"
+              >
+                <span className="font-semibold text-emerald-700">👨‍🏫 Faculty:</span>
+                <span className="text-gray-600 ml-1">faculty@test.com / Faculty@123</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ email: 'student@test.com', password: 'Student@123' });
+                }}
+                className="w-full text-left px-3 py-2 bg-white hover:bg-amber-50 border border-amber-200 rounded-md text-xs transition-colors"
+              >
+                <span className="font-semibold text-amber-700">🎓 Student:</span>
+                <span className="text-gray-600 ml-1">student@test.com / Student@123</span>
+              </button>
+            </div>
           </div>
 
           <div className="mt-4 text-center">

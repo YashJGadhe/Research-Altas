@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
+      const isDemo = localStorage.getItem('demoMode') === 'true';
 
       if (storedToken && storedUser) {
         try {
@@ -32,14 +33,17 @@ export const AuthProvider = ({ children }) => {
           setCurrentUser(parsedUser);
           setIsAuthenticated(true);
 
-          // Verify token is still valid by fetching current user
-          try {
-            const userData = await fetchCurrentUser();
-            setCurrentUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-          } catch (error) {
-            // Token invalid - clear everything
-            handleLogout();
+          // Skip verification in demo mode
+          if (!isDemo) {
+            // Verify token is still valid by fetching current user
+            try {
+              const userData = await fetchCurrentUser();
+              setCurrentUser(userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+            } catch (error) {
+              // Token invalid - clear everything
+              handleLogout();
+            }
           }
         } catch (error) {
           handleLogout();

@@ -74,6 +74,14 @@ const AdminHeader = ({ setIsCollapsed, isCollapsed, setIsMobileOpen }) => {
 
         {/* Right side - Admin info + Logout */}
         <div className="flex items-center gap-3">
+          {/* Demo Mode Badge */}
+          {localStorage.getItem('demoMode') === 'true' && (
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+              <span>🎮</span>
+              <span>Demo</span>
+            </div>
+          )}
+
           {/* Admin info */}
           <div className="hidden sm:flex items-center gap-3">
             <div className="text-right">
