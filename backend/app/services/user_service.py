@@ -2,7 +2,6 @@
 ResearchAtlas - User Service
 
 Business logic for user management operations.
-Used by both auth dependencies and admin routes.
 """
 
 from datetime import datetime, timezone
@@ -24,19 +23,13 @@ class UserService:
 
     async def get_user_by_id(self, user_id: str) -> Optional[Dict]:
         """
-        Get a user by ID. Returns raw document (for dependency use).
-
-        Args:
-            user_id: User's ObjectId string
-
-        Returns:
-            Raw user document or None
+        Get a user by ID. Returns response format (for dependency use).
         """
         collection = self._get_collection()
         try:
             user = await collection.find_one({"_id": ObjectId(user_id)})
             if user:
-                # Convert to response format for consistency
+                # Convert to response format
                 return UserModel.to_response(user)
             return None
         except Exception as e:
@@ -46,9 +39,6 @@ class UserService:
     async def get_all_users(self) -> List[Dict]:
         """
         Get all users.
-
-        Returns:
-            List of user documents (without password_hash)
         """
         collection = self._get_collection()
         cursor = collection.find({}).sort("created_at", -1)
@@ -58,33 +48,12 @@ class UserService:
     async def get_user_by_id_response(self, user_id: str) -> Optional[Dict]:
         """
         Get a user by ID in response format.
-
-        Args:
-            user_id: User's ObjectId string
-
-        Returns:
-            User response dictionary or None
         """
-        collection = self._get_collection()
-        try:
-            user = await collection.find_one({"_id": ObjectId(user_id)})
-        except Exception:
-            return None
-
-        if user:
-            return UserModel.to_response(user)
-        return None
+        return await self.get_user_by_id(user_id)
 
     async def update_user(self, user_id: str, update_ Dict) -> Optional[Dict]:
         """
         Update a user's information.
-
-        Args:
-            user_id: User's ObjectId string
-            update_ Dictionary of fields to update
-
-        Returns:
-            Updated user response or None if not found
         """
         collection = self._get_collection()
 
@@ -103,7 +72,8 @@ class UserService:
                 {"$set": update_data},
                 return_document=True,
             )
-        except Exception:
+        except Exception as e:
+            print(f"[ERROR] update_user failed: {str(e)}")
             return None
 
         if result:
@@ -113,29 +83,18 @@ class UserService:
     async def delete_user(self, user_id: str) -> bool:
         """
         Delete a user.
-
-        Args:
-            user_id: User's ObjectId string
-
-        Returns:
-            True if deleted, False if not found
         """
         collection = self._get_collection()
         try:
             result = await collection.delete_one({"_id": ObjectId(user_id)})
             return result.deleted_count > 0
-        except Exception:
+        except Exception as e:
+            print(f"[ERROR] delete_user failed: {str(e)}")
             return False
 
     async def get_users_by_role(self, role: str) -> List[Dict]:
         """
         Get all users with a specific role.
-
-        Args:
-            role: Role to filter by
-
-        Returns:
-            List of user response dictionaries
         """
         collection = self._get_collection()
         cursor = collection.find({"role": role}).sort("created_at", -1)
@@ -145,13 +104,9 @@ class UserService:
     async def get_user_by_email(self, email: str) -> Optional[Dict]:
         """
         Get a user by email.
-
-        Args:
-            email: User's email
-
-        Returns:
-            Raw user document or None
         """
         collection = self._get_collection()
         user = await collection.find_one({"email": email})
-        return user
+        if user:
+            return UserModel.to_response(user)
+        return None

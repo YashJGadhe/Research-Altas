@@ -6,6 +6,7 @@ API endpoints for registration, login, and current user retrieval.
 
 import traceback
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import JSONResponse
 
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, MessageResponse
 from app.services.auth_service import AuthService
@@ -17,15 +18,10 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 auth_service = AuthService()
 
 
-@router.post("/register", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(request: RegisterRequest):
     """
     Register a new user account.
-
-    Validates all fields, checks for duplicates, hashes password,
-    and creates the user account.
-
-    Returns 409 if email already exists.
     """
     # Validate password confirmation
     if request.password != request.confirm_password:
@@ -45,10 +41,10 @@ async def register(request: RegisterRequest):
             scopus_id=request.scopus_id,
             wos_id=request.wos_id,
         )
-        return MessageResponse(
-            message="Registration successful. You can now login.",
-            success=True,
-        )
+        return {
+            "message": "Registration successful. You can now login.",
+            "success": True,
+        }
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -68,20 +64,26 @@ async def register(request: RegisterRequest):
         )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login")
 async def login(request: LoginRequest):
     """
     Authenticate user and return JWT access token.
-
-    Verifies credentials and account status.
-    Returns token and user information on success.
     """
     try:
         result = await auth_service.authenticate_user(
             email=request.email,
             password=request.password,
         )
+        
+        # Ensure result has the correct structure
+        if not isinstance(result, dict):
+            raise ValueError("Invalid response from authentication service")
+        
+        if "access_token" not in result or "user" not in result:
+            raise ValueError("Missing required fields in authentication response")
+        
         return result
+        
     except PermissionError as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -105,8 +107,5 @@ async def login(request: LoginRequest):
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """
     Get the currently authenticated user's information.
-
-    Requires valid JWT token.
-    Returns user data without sensitive fields.
     """
     return current_user

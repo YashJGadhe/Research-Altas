@@ -36,22 +36,6 @@ class AuthService:
     ) -> Dict:
         """
         Register a new user.
-
-        Args:
-            full_name: User's full name
-            email: Normalized email
-            password: Plain-text password (will be hashed)
-            role: User role
-            department: User department
-            orcid_id: ORCID researcher identifier
-            scopus_id: Scopus author identifier
-            wos_id: Web of Science researcher identifier
-
-        Returns:
-            Created user document (without password_hash)
-
-        Raises:
-            ValueError: If email already exists
         """
         collection = self._get_collection()
 
@@ -102,16 +86,9 @@ class AuthService:
     async def authenticate_user(self, email: str, password: str) -> Dict:
         """
         Authenticate a user and generate JWT token.
-
-        Args:
-            email: User's email
-            password: Plain-text password
-
+        
         Returns:
-            Dictionary with access_token and user data in TokenResponse format
-
-        Raises:
-            ValueError: If credentials are invalid or account is deactivated
+            Dict with access_token, token_type, and user data
         """
         collection = self._get_collection()
 
@@ -125,7 +102,11 @@ class AuthService:
             raise PermissionError("Your account has been deactivated. Please contact an administrator.")
 
         # Verify password
-        if not verify_password(password, user["password_hash"]):
+        password_hash = user.get("password_hash")
+        if not password_hash:
+            raise ValueError("Invalid email or password")
+            
+        if not verify_password(password, password_hash):
             raise ValueError("Invalid email or password")
 
         # Generate JWT token
@@ -136,28 +117,26 @@ class AuthService:
         }
         access_token = create_access_token(data=token_data)
 
-        # Return in TokenResponse format
+        # Convert user to response format
+        user_response = UserModel.to_response(user)
+
+        # Return in the exact format expected by frontend
         return {
             "access_token": access_token,
             "token_type": "bearer",
-            "user": UserModel.to_response(user),
+            "user": user_response,
         }
 
     async def get_user_by_id(self, user_id: str) -> Optional[Dict]:
         """
         Get a user by their ID.
-
-        Args:
-            user_id: User's ObjectId string
-
-        Returns:
-            User document (without password_hash) or None
         """
         collection = self._get_collection()
 
         try:
             user = await collection.find_one({"_id": ObjectId(user_id)})
-        except Exception:
+        except Exception as e:
+            print(f"[ERROR] get_user_by_id failed: {str(e)}")
             return None
 
         if user:

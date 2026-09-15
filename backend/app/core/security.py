@@ -24,19 +24,16 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain-text password against a hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception as e:
+        print(f"[ERROR] Password verification failed: {str(e)}")
+        return False
 
 
 def create_access_token( Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     """
     Create a JWT access token.
-
-    Args:
-         Dictionary containing token claims (user_id, email, role, etc.)
-        expires_delta: Optional custom expiration time
-
-    Returns:
-        Encoded JWT token string
     """
     to_encode = data.copy()
 
@@ -48,23 +45,22 @@ def create_access_token( Dict[str, Any], expires_delta: Optional[timedelta] = No
         )
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode,
-        settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM,
-    )
-    return encoded_jwt
+    
+    try:
+        encoded_jwt = jwt.encode(
+            to_encode,
+            settings.JWT_SECRET_KEY,
+            algorithm=settings.JWT_ALGORITHM,
+        )
+        return encoded_jwt
+    except Exception as e:
+        print(f"[ERROR] Failed to create access token: {str(e)}")
+        raise
 
 
 def verify_token(token: str) -> Optional[Dict[str, Any]]:
     """
     Verify and decode a JWT token.
-
-    Args:
-        token: JWT token string
-
-    Returns:
-        Decoded token payload if valid, None if invalid/expired
     """
     try:
         payload = jwt.decode(
@@ -73,5 +69,9 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
             algorithms=[settings.JWT_ALGORITHM],
         )
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"[ERROR] Token verification failed: {str(e)}")
+        return None
+    except Exception as e:
+        print(f"[ERROR] Unexpected error during token verification: {str(e)}")
         return None

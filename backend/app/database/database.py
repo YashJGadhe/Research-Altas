@@ -19,9 +19,19 @@ async def connect_to_mongodb():
     Called during application startup.
     """
     global client, db
-    client = AsyncIOMotorClient(settings.MONGODB_URL)
-    db = client[settings.DATABASE_NAME]
-    print(f"✅ Connected to MongoDB: {settings.DATABASE_NAME}")
+    try:
+        client = AsyncIOMotorClient(
+            settings.MONGODB_URL,
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=5000,
+        )
+        # Test connection
+        await client.admin.command('ping')
+        db = client[settings.DATABASE_NAME]
+        print(f"✅ Connected to MongoDB: {settings.DATABASE_NAME}")
+    except Exception as e:
+        print(f"❌ Failed to connect to MongoDB: {str(e)}")
+        raise
 
 
 async def close_mongodb_connection():

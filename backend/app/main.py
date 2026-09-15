@@ -33,13 +33,18 @@ async def lifespan(app: FastAPI):
         print(f"✅ {settings.APP_NAME} started successfully")
     except Exception as e:
         print(f"❌ Failed to start {settings.APP_NAME}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise
     
     yield
     
     # Shutdown
-    await close_mongodb_connection()
-    print(f"👋 {settings.APP_NAME} shutdown complete")
+    try:
+        await close_mongodb_connection()
+        print(f"👋 {settings.APP_NAME} shutdown complete")
+    except Exception as e:
+        print(f"❌ Error during shutdown: {str(e)}")
 
 
 # Create FastAPI application
@@ -73,7 +78,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
         content={
-            "detail": "An internal server error occurred. Please try again later."
+            "detail": f"An internal server error occurred: {str(exc)}"
         },
     )
 

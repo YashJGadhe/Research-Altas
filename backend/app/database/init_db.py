@@ -68,6 +68,8 @@ async def migrate_existing_users():
             )
         
         print(f"✅ Migrated {len(users_without_ids)} existing users with research ID fields")
+    else:
+        print("✅ No users need migration")
 
 
 async def init_default_admin():
@@ -111,6 +113,8 @@ async def init_default_admin():
                 {"$set": update_data}
             )
             print(f"✅ Updated default admin with research ID fields")
+        else:
+            print(f"✅ Default admin already has all required fields")
         
         return
 
@@ -140,7 +144,13 @@ async def initialize_database():
     Full database initialization.
     Called during application startup after MongoDB connection.
     """
-    await create_indexes()
-    await migrate_existing_users()
-    await init_default_admin()
-    print("✅ Database initialization complete")
+    try:
+        await create_indexes()
+        await migrate_existing_users()
+        await init_default_admin()
+        print("✅ Database initialization complete")
+    except Exception as e:
+        print(f"❌ Database initialization failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise

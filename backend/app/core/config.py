@@ -2,7 +2,6 @@
 ResearchAtlas - Application Configuration
 
 Centralized configuration loaded from environment variables.
-Never hardcode secrets - always use environment variables.
 """
 
 import os
@@ -23,7 +22,7 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = "researchatlas"
 
     # JWT Configuration
-    JWT_SECRET_KEY: str = "change-this-in-production-use-strong-random-secret"
+    JWT_SECRET_KEY: str = "researchatlas-dev-secret-key-change-in-production-2026"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
