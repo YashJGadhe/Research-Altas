@@ -3,11 +3,11 @@
  * 
  * Handles all authentication-related API calls.
  * Uses the centralized apiClient for all requests.
- * Falls back to mock API in demo mode.
+ * Falls back to mock API in demo mode or when backend is unavailable.
  */
 
 import apiClient from './apiClient';
-import { mockLogin, mockRegister, mockGetCurrentUser, isDemoMode } from './mockApi';
+import { mockLogin, mockRegister, mockGetCurrentUser, isDemoMode, enableDemoMode } from './mockApi';
 
 /**
  * Register a new user
@@ -35,9 +35,9 @@ export const register = async (userData) => {
     return response.data;
   } catch (error) {
     // If backend is not available, fall back to mock
-    if (error.code === 'ERR_NETWORK' || !error.response) {
-      console.log('Backend not available, using demo mode');
-      localStorage.setItem('demoMode', 'true');
+    if (error.code === 'ERR_NETWORK' || !error.response || error.message.includes('Network Error')) {
+      console.log('Backend not available, enabling demo mode');
+      enableDemoMode();
       return await mockRegister(userData);
     }
     throw error;
@@ -52,6 +52,7 @@ export const register = async (userData) => {
 export const login = async (credentials) => {
   // Use mock API in demo mode
   if (isDemoMode()) {
+    console.log('Using demo mode for login');
     return await mockLogin(credentials.email, credentials.password);
   }
 
@@ -63,9 +64,9 @@ export const login = async (credentials) => {
     return response.data;
   } catch (error) {
     // If backend is not available, fall back to mock
-    if (error.code === 'ERR_NETWORK' || !error.response) {
-      console.log('Backend not available, using demo mode');
-      localStorage.setItem('demoMode', 'true');
+    if (error.code === 'ERR_NETWORK' || !error.response || error.message.includes('Network Error')) {
+      console.log('Backend not available, enabling demo mode');
+      enableDemoMode();
       return await mockLogin(credentials.email, credentials.password);
     }
     throw error;
@@ -87,9 +88,9 @@ export const getCurrentUser = async () => {
     return response.data;
   } catch (error) {
     // If backend is not available, fall back to mock
-    if (error.code === 'ERR_NETWORK' || !error.response) {
+    if (error.code === 'ERR_NETWORK' || !error.response || error.message.includes('Network Error')) {
       console.log('Backend not available, using demo mode');
-      localStorage.setItem('demoMode', 'true');
+      enableDemoMode();
       return await mockGetCurrentUser();
     }
     throw error;

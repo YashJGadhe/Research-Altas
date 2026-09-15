@@ -180,10 +180,20 @@ const LoginPage = () => {
                 setError('');
                 setLoading(true);
                 try {
-                  const response = await loginApi({ email: 'admin@test.com', password: 'Admin@123' });
+                  // Enable demo mode first
+                  localStorage.setItem('demoMode', 'true');
+                  
+                  // Import mock API directly
+                  const { mockLogin } = await import('../../api/mockApi');
+                  const response = await mockLogin('admin@test.com', 'Admin@123');
+                  
+                  // Use the login function from AuthContext
                   login(response);
+                  
+                  // Navigate to admin dashboard
                   navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
                 } catch (err) {
+                  console.error('Demo login error:', err);
                   setError('Demo login failed. Please try again.');
                 } finally {
                   setLoading(false);
@@ -199,9 +209,23 @@ const LoginPage = () => {
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => {
-                  setFormData({ email: 'admin@test.com', password: 'Admin@123' });
+                onClick={async () => {
+                  setError('');
+                  setLoading(true);
+                  try {
+                    localStorage.setItem('demoMode', 'true');
+                    const { mockLogin } = await import('../../api/mockApi');
+                    const response = await mockLogin('admin@test.com', 'Admin@123');
+                    login(response);
+                    navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
+                  } catch (err) {
+                    console.error('Demo login error:', err);
+                    setError('Demo login failed. Please try again.');
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
+                disabled={loading}
                 className="w-full text-left px-3 py-2 bg-white hover:bg-purple-50 border border-purple-200 rounded-md text-xs transition-colors"
               >
                 <span className="font-semibold text-purple-700">👑 Admin:</span>
@@ -209,9 +233,23 @@ const LoginPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setFormData({ email: 'faculty@test.com', password: 'Faculty@123' });
+                onClick={async () => {
+                  setError('');
+                  setLoading(true);
+                  try {
+                    localStorage.setItem('demoMode', 'true');
+                    const { mockLogin } = await import('../../api/mockApi');
+                    const response = await mockLogin('faculty@test.com', 'Faculty@123');
+                    login(response);
+                    navigate(ROUTES.FACULTY_DASHBOARD, { replace: true });
+                  } catch (err) {
+                    console.error('Demo login error:', err);
+                    setError('Demo login failed. Please try again.');
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
+                disabled={loading}
                 className="w-full text-left px-3 py-2 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-md text-xs transition-colors"
               >
                 <span className="font-semibold text-emerald-700">👨‍🏫 Faculty:</span>
@@ -219,9 +257,23 @@ const LoginPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setFormData({ email: 'student@test.com', password: 'Student@123' });
+                onClick={async () => {
+                  setError('');
+                  setLoading(true);
+                  try {
+                    localStorage.setItem('demoMode', 'true');
+                    const { mockLogin } = await import('../../api/mockApi');
+                    const response = await mockLogin('student@test.com', 'Student@123');
+                    login(response);
+                    navigate(ROUTES.STUDENT_DASHBOARD, { replace: true });
+                  } catch (err) {
+                    console.error('Demo login error:', err);
+                    setError('Demo login failed. Please try again.');
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
+                disabled={loading}
                 className="w-full text-left px-3 py-2 bg-white hover:bg-amber-50 border border-amber-200 rounded-md text-xs transition-colors"
               >
                 <span className="font-semibold text-amber-700">🎓 Student:</span>

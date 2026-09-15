@@ -8,6 +8,7 @@
 
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { getCurrentUser as fetchCurrentUser, logout as apiLogout } from '../api/authApi';
+import { isDemoMode } from '../api/mockApi';
 
 export const AuthContext = createContext(null);
 
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
-      const isDemo = localStorage.getItem('demoMode') === 'true';
+      const demoMode = isDemoMode();
 
       if (storedToken && storedUser) {
         try {
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
 
           // Skip verification in demo mode
-          if (!isDemo) {
+          if (!demoMode) {
             // Verify token is still valid by fetching current user
             try {
               const userData = await fetchCurrentUser();
@@ -79,6 +80,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Keep demo mode enabled
   }, []);
 
   /**

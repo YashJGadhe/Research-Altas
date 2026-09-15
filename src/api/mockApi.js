@@ -35,32 +35,6 @@ export const MOCK_FACULTY = [
     created_at: '2026-01-20T10:00:00+00:00',
     updated_at: '2026-03-20T10:00:00+00:00',
   },
-  {
-    id: 'faculty-002',
-    full_name: 'Dr. Amit Patel',
-    email: 'amit.patel@raisoni.net',
-    role: 'faculty',
-    department: 'CSE',
-    orcid_id: '0000-0002-3456-7890',
-    scopus_id: '55805511002',
-    wos_id: 'B-2345-6789',
-    is_active: true,
-    created_at: '2026-02-01T10:00:00+00:00',
-    updated_at: '2026-03-21T10:00:00+00:00',
-  },
-  {
-    id: 'faculty-003',
-    full_name: 'Dr. Sneha Reddy',
-    email: 'sneha.reddy@raisoni.net',
-    role: 'faculty',
-    department: 'CSE',
-    orcid_id: '0000-0003-4567-8901',
-    scopus_id: '55805511003',
-    wos_id: 'C-3456-7890',
-    is_active: true,
-    created_at: '2026-02-10T10:00:00+00:00',
-    updated_at: '2026-03-22T10:00:00+00:00',
-  },
 ];
 
 // Mock student data
@@ -84,7 +58,7 @@ export const MOCK_STUDENT = {
  */
 export const mockLogin = async (email, password) => {
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   // Test credentials
   const validCredentials = [
@@ -93,17 +67,15 @@ export const mockLogin = async (email, password) => {
     { email: 'student@test.com', password: 'Student@123', user: MOCK_STUDENT },
   ];
 
+  const normalizedEmail = email.toLowerCase().trim();
   const match = validCredentials.find(
-    cred => cred.email === email.toLowerCase().trim() && cred.password === password
+    cred => cred.email === normalizedEmail && cred.password === password
   );
 
   if (!match) {
-    throw {
-      response: {
-        status: 401,
-        data: { detail: 'Invalid email or password' }
-      }
-    };
+    const error = new Error('Invalid email or password');
+    error.response = { status: 401, data: { detail: 'Invalid email or password' } };
+    throw error;
   }
 
   // Generate mock JWT token
@@ -120,7 +92,7 @@ export const mockLogin = async (email, password) => {
  * Mock register function
  */
 export const mockRegister = async (userData) => {
-  await new Promise(resolve => setTimeout(resolve, 800));
+  await new Promise(resolve => setTimeout(resolve, 500));
   return {
     message: 'Registration successful (Demo Mode). You can now login.',
     success: true,
@@ -131,19 +103,21 @@ export const mockRegister = async (userData) => {
  * Mock get current user
  */
 export const mockGetCurrentUser = async () => {
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise(resolve => setTimeout(resolve, 200));
   const storedUser = localStorage.getItem('user');
   if (storedUser) {
     return JSON.parse(storedUser);
   }
-  throw { response: { status: 401, data: { detail: 'Not authenticated' } } };
+  const error = new Error('Not authenticated');
+  error.response = { status: 401, data: { detail: 'Not authenticated' } };
+  throw error;
 };
 
 /**
- * Check if we're in demo mode (backend not available)
+ * Check if we're in demo mode
  */
 export const isDemoMode = () => {
-  return import.meta.env.VITE_DEMO_MODE === 'true' || localStorage.getItem('demoMode') === 'true';
+  return localStorage.getItem('demoMode') === 'true';
 };
 
 /**
