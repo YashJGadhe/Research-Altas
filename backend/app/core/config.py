@@ -37,7 +37,11 @@ class Settings(BaseSettings):
     ADMIN_EMAIL_DOMAIN: str = "raisoni.net"
     FACULTY_EMAIL_DOMAIN: str = "raisoni.net"
     STUDENT_EMAIL_DOMAIN: str = "ghrce.raisoni.net"
-
+    
+    # ORCID API Configuration
+    ORCID_CLIENT_ID: str = ""
+    ORCID_CLIENT_SECRET: str = ""
+    
     @property
     def cors_origins_list(self) -> list:
         """Parse CORS origins from comma-separated string."""
