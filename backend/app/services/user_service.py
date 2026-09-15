@@ -60,7 +60,7 @@ class UserService:
         # Remove None values
         update_data = {k: v for k, v in update_data.items() if v is not None}
 
-        if not update_
+        if not update_data:
             return await self.get_user_by_id_response(user_id)
 
         # Add updated_at timestamp

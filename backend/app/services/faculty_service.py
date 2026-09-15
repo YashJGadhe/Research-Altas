@@ -152,7 +152,7 @@ class FacultyService:
         # Remove None values
         update_data = {k: v for k, v in update_data.items() if v is not None}
 
-        if not update_
+        if not update_data:
             return await self.get_faculty_by_id(faculty_id)
 
         # Ensure we only update faculty
