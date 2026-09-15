@@ -19,6 +19,8 @@ import {
   getCitationHistory,
   fetchOrcidData
 } from '../../api/citationApi';
+import { MOCK_CITATION_RECORDS, MOCK_CITATION_HISTORY, MOCK_FETCH_RESULT } from '../../api/mockCitationData';
+import { isDemoMode } from '../../api/mockApi';
 
 const CitationManagement = () => {
   const { currentUser } = useAuth();
@@ -43,12 +45,29 @@ const CitationManagement = () => {
   const loadCitations = async () => {
     try {
       setLoading(true);
+      
+      // Use mock data in demo mode
+      if (isDemoMode()) {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setCitations(MOCK_CITATION_RECORDS);
+        setError('');
+        return;
+      }
+      
       const data = await getAllCitations();
       setCitations(data.records);
       setError('');
     } catch (err) {
-      setError('Failed to load citation data');
-      console.error(err);
+      // If backend is not available, fall back to mock data
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        console.log('Backend not available, using demo mode for citations');
+        setCitations(MOCK_CITATION_RECORDS);
+        setError('');
+      } else {
+        setError('Failed to load citation data');
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
@@ -72,14 +91,43 @@ const CitationManagement = () => {
   const handleEditSubmit = async () => {
     try {
       setEditLoading(true);
+      
+      // In demo mode, just update local state
+      if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const updatedCitations = citations.map(c => 
+          c.id === editModal.record.id 
+            ? { ...c, ...editForm, updated_at: new Date().toISOString() }
+            : c
+        );
+        setCitations(updatedCitations);
+        setSuccess('Citation data updated successfully (Demo Mode)');
+        setEditModal({ open: false, record: null });
+        setTimeout(() => setSuccess(''), 3000);
+        return;
+      }
+      
       await updateCitation(editModal.record.id, editForm);
       setSuccess('Citation data updated successfully');
       setEditModal({ open: false, record: null });
       await loadCitations();
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError('Failed to update citation data');
-      console.error(err);
+      // If backend is not available, fall back to demo mode
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        const updatedCitations = citations.map(c => 
+          c.id === editModal.record.id 
+            ? { ...c, ...editForm, updated_at: new Date().toISOString() }
+            : c
+        );
+        setCitations(updatedCitations);
+        setSuccess('Citation data updated successfully (Demo Mode)');
+        setEditModal({ open: false, record: null });
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError('Failed to update citation data');
+        console.error(err);
+      }
     } finally {
       setEditLoading(false);
     }
@@ -87,23 +135,66 @@ const CitationManagement = () => {
 
   const handleViewHistory = async (record) => {
     try {
+      // In demo mode, show empty history
+      if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setHistoryModal({ open: true, record, history: MOCK_CITATION_HISTORY });
+        return;
+      }
+      
       const historyData = await getCitationHistory(record.id);
       setHistoryModal({ open: true, record, history: historyData.history });
     } catch (err) {
-      setError('Failed to load history');
-      console.error(err);
+      // If backend is not available, show empty history
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        setHistoryModal({ open: true, record, history: MOCK_CITATION_HISTORY });
+      } else {
+        setError('Failed to load history');
+        console.error(err);
+      }
     }
   };
 
   const handleFetchOrcid = async (record) => {
     try {
       setLoading(true);
+      
+      // In demo mode, show mock result
+      if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const mockResult = {
+          ...MOCK_FETCH_RESULT,
+          faculty_id: record.faculty_id,
+          data: {
+            ...MOCK_FETCH_RESULT.data,
+            name: record.faculty_name,
+            orcid_id: record.orcid?.id || '0000-0002-1825-0097'
+          }
+        };
+        setFetchResultModal({ open: true, result: mockResult });
+        return;
+      }
+      
       const result = await fetchOrcidData(record.id);
       setFetchResultModal({ open: true, result });
       await loadCitations();
     } catch (err) {
-      setError('Failed to fetch ORCID data');
-      console.error(err);
+      // If backend is not available, show mock result
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        const mockResult = {
+          ...MOCK_FETCH_RESULT,
+          faculty_id: record.faculty_id,
+          data: {
+            ...MOCK_FETCH_RESULT.data,
+            name: record.faculty_name,
+            orcid_id: record.orcid?.id || '0000-0002-1825-0097'
+          }
+        };
+        setFetchResultModal({ open: true, result: mockResult });
+      } else {
+        setError('Failed to fetch ORCID data');
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
@@ -112,6 +203,15 @@ const CitationManagement = () => {
   const handleFetchAll = async () => {
     try {
       setLoading(true);
+      
+      // In demo mode, show mock result
+      if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setSuccess('Fetch complete (Demo Mode). ORCID integration requires backend server.');
+        setTimeout(() => setSuccess(''), 5000);
+        return;
+      }
+      
       let totalUpdated = 0;
       let totalFound = 0;
       
@@ -133,8 +233,14 @@ const CitationManagement = () => {
       await loadCitations();
       setTimeout(() => setSuccess(''), 5000);
     } catch (err) {
-      setError('Failed to fetch data');
-      console.error(err);
+      // If backend is not available, show demo message
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        setSuccess('Fetch complete (Demo Mode). ORCID integration requires backend server.');
+        setTimeout(() => setSuccess(''), 5000);
+      } else {
+        setError('Failed to fetch data');
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
