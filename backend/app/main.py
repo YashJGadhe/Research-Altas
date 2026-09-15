@@ -19,6 +19,7 @@ from app.routes.auth import router as auth_router
 from app.routes.user import router as user_router
 from app.routes.faculty import router as faculty_router
 from app.routes.citations import router as citations_router
+from app.routes.research_papers import router as research_papers_router
 
 
 @asynccontextmanager
@@ -89,6 +90,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(faculty_router)
 app.include_router(citations_router)
+app.include_router(research_papers_router)
 
 
 # Health check endpoint
