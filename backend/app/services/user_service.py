@@ -51,7 +51,7 @@ class UserService:
         """
         return await self.get_user_by_id(user_id)
 
-    async def update_user(self, user_id: str, update_ Dict) -> Optional[Dict]:
+    async def update_user(self, user_id: str, update_data: Dict) -> Optional[Dict]:
         """
         Update a user's information.
         """

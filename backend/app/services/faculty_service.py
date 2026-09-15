@@ -136,7 +136,7 @@ class FacultyService:
 
         return UserModel.to_response(user_doc)
 
-    async def update_faculty(self, faculty_id: str, update_ Dict) -> Optional[Dict]:
+    async def update_faculty(self, faculty_id: str, update_data: Dict) -> Optional[Dict]:
         """
         Update a faculty member's information.
 
