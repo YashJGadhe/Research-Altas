@@ -68,6 +68,7 @@ const ResearchPapers = () => {
   const loadFacultyList = async () => {
     try {
       setLoading(true);
+      setError('');
       
       // Check if in demo mode
       if (isDemoMode()) {
@@ -86,18 +87,52 @@ const ResearchPapers = () => {
         return;
       }
       
-      // Import faculty API to get actual faculty members
-      const { getAllFaculty } = await import('../../api/facultyApi');
-      const data = await getAllFaculty();
+      // Try to load faculty from users collection
+      try {
+        const { getAllFaculty } = await import('../../api/facultyApi');
+        const data = await getAllFaculty();
+        
+        if (data.faculty && data.faculty.length > 0) {
+          // Map faculty data to the format needed
+          const faculty = data.faculty.map(f => ({
+            id: f.id,  // This is the actual MongoDB ObjectId
+            name: f.full_name,
+            orcid_id: f.orcid_id || ''
+          }));
+          
+          setFacultyList(faculty);
+          setLoading(false);
+          return;
+        }
+      } catch (facultyErr) {
+        console.warn('Faculty API not available, falling back to citation records:', facultyErr);
+      }
       
-      // Map faculty data to the format needed
-      const faculty = data.faculty.map(f => ({
-        id: f.id,  // This is the actual MongoDB ObjectId
-        name: f.full_name,
-        orcid_id: f.orcid_id || ''
-      }));
-      
-      setFacultyList(faculty);
+      // Fallback: Load from citation records if faculty API fails or returns empty
+      try {
+        const data = await getAllCitations();
+        if (data.records && data.records.length > 0) {
+          const faculty = data.records.map(record => ({
+            id: record.faculty_id,
+            name: record.faculty_name,
+            orcid_id: record.orcid?.id || ''
+          }));
+          
+          // Remove duplicates based on faculty_id
+          const uniqueFaculty = faculty.filter((f, index, self) =>
+            index === self.findIndex((t) => t.id === f.id)
+          );
+          
+          setFacultyList(uniqueFaculty);
+          setSuccess('Note: Using citation records. Create faculty members for full functionality.');
+          setTimeout(() => setSuccess(''), 5000);
+        } else {
+          setError('No faculty members found. Please create faculty members first.');
+        }
+      } catch (citationErr) {
+        setError('Failed to load faculty list. Please ensure backend is running.');
+        console.error('Error loading faculty:', citationErr);
+      }
     } catch (err) {
       setError('Failed to load faculty list');
       console.error(err);
