@@ -74,19 +74,45 @@ const LoginPage = () => {
     }
   };
 
+  const handleDemoLogin = async (role) => {
+    setError('');
+    setLoading(true);
+    try {
+      localStorage.setItem('demoMode', 'true');
+      const { mockLogin } = await import('../../api/mockApi');
+      
+      let credentials;
+      if (role === 'admin') {
+        credentials = { email: 'admin@test.com', password: 'Admin@123' };
+      } else if (role === 'faculty') {
+        credentials = { email: 'faculty@test.com', password: 'Faculty@123' };
+      } else {
+        credentials = { email: 'student@test.com', password: 'Student@123' };
+      }
+      
+      const response = await mockLogin(credentials.email, credentials.password);
+      login(response);
+      
+      if (role === 'admin') {
+        navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
+      } else if (role === 'faculty') {
+        navigate(ROUTES.FACULTY_DASHBOARD, { replace: true });
+      } else {
+        navigate(ROUTES.STUDENT_DASHBOARD, { replace: true });
+      }
+    } catch (err) {
+      console.error('Demo login error:', err);
+      setError('Demo login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-8">
       <div className="w-full max-w-md">
-        {/* Demo Banner */}
-        <div className="mb-4 p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white text-center shadow-lg">
-          <p className="text-sm font-semibold flex items-center justify-center gap-2">
-            <span>🎮</span> Preview Demo Mode <span>🎮</span>
-          </p>
-          <p className="text-xs opacity-90 mt-0.5">Click "Login as Admin" below to explore</p>
-        </div>
-
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg mb-4">
             <span className="text-3xl">🌐</span>
           </div>
@@ -158,127 +184,60 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Email Domain Info */}
-          <div className="mt-6 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-            <p className="text-xs text-blue-700 font-medium mb-1">Accepted Email Domains:</p>
-            <ul className="text-xs text-blue-600 space-y-0.5">
-              <li>• Admin & Faculty: <strong>@raisoni.net</strong></li>
-              <li>• Students: <strong>@ghrce.raisoni.net</strong></li>
-            </ul>
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
           </div>
 
-          {/* Demo Mode Quick Login */}
-          <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
-            <p className="text-xs text-purple-700 font-semibold mb-3 flex items-center gap-1">
-              <span>🎮</span> Demo Mode - Quick Login
-            </p>
-            
-            {/* One-click Admin Login */}
+          {/* Demo Mode Buttons - Clean Layout */}
+          <div className="space-y-3">
             <button
               type="button"
-              onClick={async () => {
-                setError('');
-                setLoading(true);
-                try {
-                  // Enable demo mode first
-                  localStorage.setItem('demoMode', 'true');
-                  
-                  // Import mock API directly
-                  const { mockLogin } = await import('../../api/mockApi');
-                  const response = await mockLogin('admin@test.com', 'Admin@123');
-                  
-                  // Use the login function from AuthContext
-                  login(response);
-                  
-                  // Navigate to admin dashboard
-                  navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
-                } catch (err) {
-                  console.error('Demo login error:', err);
-                  setError('Demo login failed. Please try again.');
-                } finally {
-                  setLoading(false);
-                }
-              }}
+              onClick={() => handleDemoLogin('admin')}
               disabled={loading}
-              className="w-full mb-3 py-2.5 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
             >
               <span>👑</span>
               <span>Login as Admin (Demo)</span>
             </button>
 
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={async () => {
-                  setError('');
-                  setLoading(true);
-                  try {
-                    localStorage.setItem('demoMode', 'true');
-                    const { mockLogin } = await import('../../api/mockApi');
-                    const response = await mockLogin('admin@test.com', 'Admin@123');
-                    login(response);
-                    navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
-                  } catch (err) {
-                    console.error('Demo login error:', err);
-                    setError('Demo login failed. Please try again.');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={() => handleDemoLogin('faculty')}
                 disabled={loading}
-                className="w-full text-left px-3 py-2 bg-white hover:bg-purple-50 border border-purple-200 rounded-md text-xs transition-colors"
+                className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium rounded-lg text-xs transition-colors flex items-center justify-center gap-1"
               >
-                <span className="font-semibold text-purple-700">👑 Admin:</span>
-                <span className="text-gray-600 ml-1">admin@test.com / Admin@123</span>
+                <span>👨‍🏫</span>
+                <span>Faculty Demo</span>
               </button>
+
               <button
                 type="button"
-                onClick={async () => {
-                  setError('');
-                  setLoading(true);
-                  try {
-                    localStorage.setItem('demoMode', 'true');
-                    const { mockLogin } = await import('../../api/mockApi');
-                    const response = await mockLogin('faculty@test.com', 'Faculty@123');
-                    login(response);
-                    navigate(ROUTES.FACULTY_DASHBOARD, { replace: true });
-                  } catch (err) {
-                    console.error('Demo login error:', err);
-                    setError('Demo login failed. Please try again.');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={() => handleDemoLogin('student')}
                 disabled={loading}
-                className="w-full text-left px-3 py-2 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-md text-xs transition-colors"
+                className="py-2 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 font-medium rounded-lg text-xs transition-colors flex items-center justify-center gap-1"
               >
-                <span className="font-semibold text-emerald-700">👨‍🏫 Faculty:</span>
-                <span className="text-gray-600 ml-1">faculty@test.com / Faculty@123</span>
+                <span>🎓</span>
+                <span>Student Demo</span>
               </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  setError('');
-                  setLoading(true);
-                  try {
-                    localStorage.setItem('demoMode', 'true');
-                    const { mockLogin } = await import('../../api/mockApi');
-                    const response = await mockLogin('student@test.com', 'Student@123');
-                    login(response);
-                    navigate(ROUTES.STUDENT_DASHBOARD, { replace: true });
-                  } catch (err) {
-                    console.error('Demo login error:', err);
-                    setError('Demo login failed. Please try again.');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                disabled={loading}
-                className="w-full text-left px-3 py-2 bg-white hover:bg-amber-50 border border-amber-200 rounded-md text-xs transition-colors"
-              >
-                <span className="font-semibold text-amber-700">🎓 Student:</span>
-                <span className="text-gray-600 ml-1">student@test.com / Student@123</span>
-              </button>
+            </div>
+          </div>
+
+          {/* Backend Login Info */}
+          <div className="mt-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-xs text-green-700 font-semibold mb-2 flex items-center gap-1">
+              <span>🔑</span> Backend Login (Use this to login with real backend)
+            </p>
+            <div className="text-xs text-green-800 space-y-1">
+              <p><strong>Email:</strong> admin@raisoni.net</p>
+              <p><strong>Password:</strong> Admin@123</p>
+              <p className="mt-2 text-green-600 text-[10px]">⚠️ Make sure backend is running on port 8000</p>
             </div>
           </div>
 
