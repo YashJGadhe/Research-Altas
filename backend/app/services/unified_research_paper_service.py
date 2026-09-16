@@ -116,7 +116,7 @@ class UnifiedResearchPaperService:
         # Fetch from ORCID
         orcid_data = await self.orcid_service.get_researcher_profile(orcid_id)
         
-        if not orcid_
+        if not orcid_data:
             return {
                 "success": False,
                 "faculty_id": faculty_id,
