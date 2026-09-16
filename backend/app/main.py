@@ -10,14 +10,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database.mongodb import connect_to_mongo, close_mongo_connection
 from app.database.indexes import create_indexes
+from app.database.init_db import initialize_database
 from app.routes.researchers import router as researchers_router
+from app.routes.auth import router as auth_router
+from app.routes.citations import router as citations_router
+from app.routes.faculty import router as faculty_router
+from app.routes.research_papers import router as research_papers_router
+from app.routes.user import router as user_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     await connect_to_mongo()
-    await create_indexes()
+    await initialize_database()
     yield
     # Shutdown
     await close_mongo_connection()
@@ -40,6 +46,11 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
+app.include_router(user_router)
+app.include_router(faculty_router)
+app.include_router(citations_router)
+app.include_router(research_papers_router)
 app.include_router(researchers_router)
 
 
