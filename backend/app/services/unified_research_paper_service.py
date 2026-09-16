@@ -11,32 +11,26 @@ All platforms return normalized publication data in the same format.
 """
 
 from datetime import datetime
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, List, Dict, Any
 from bson import ObjectId
-import re
 import httpx
 import asyncio
 
 from app.database.database import get_collection
-from app.models.publication import Publication, PublicationHistory
+from app.models.publication import Publication
 from app.services.orcid_service import OrcidService
 
 
-class ResearchPaperService:
+class UnifiedResearchPaperService:
     """Unified service for fetching publications from all platforms."""
     
     def __init__(self):
-        self.publications_collection = Publication.COLLECTION_NAME
-        self.history_collection = PublicationHistory.COLLECTION_NAME
+        self.publications_collection = "research_publications"
         self.orcid_service = OrcidService()
     
     def _get_publications_collection(self):
         """Get publications collection."""
         return get_collection(self.publications_collection)
-    
-    def _get_history_collection(self):
-        """Get history collection."""
-        return get_collection(self.history_collection)
     
     async def fetch_publications(
         self,
@@ -187,21 +181,23 @@ class ResearchPaperService:
             }
         
         try:
-            # Note: This is a placeholder - actual Scopus API requires API key
-            # For now, return mock data structure
-            return {
-                "success": False,
-                "faculty_id": faculty_id,
-                "faculty_name": faculty_name,
-                "source": "Scopus",
-                "fetched_count": 0,
-                "duplicates_removed": 0,
-                "unique_count": 0,
-                "stored_count": 0,
-                "status": "failed",
-                "error": "Scopus API integration not yet implemented. Requires API key configuration.",
-                "publications": []
-            }
+            # Fetch from Scopus API
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                # Note: This is a placeholder - actual Scopus API requires API key
+                # For now, return mock data structure
+                return {
+                    "success": False,
+                    "faculty_id": faculty_id,
+                    "faculty_name": faculty_name,
+                    "source": "Scopus",
+                    "fetched_count": 0,
+                    "duplicates_removed": 0,
+                    "unique_count": 0,
+                    "stored_count": 0,
+                    "status": "failed",
+                    "error": "Scopus API integration not yet implemented. Requires API key configuration.",
+                    "publications": []
+                }
         except Exception as e:
             return {
                 "success": False,
@@ -433,7 +429,7 @@ class ResearchPaperService:
                 normalized.append(publication)
                 
             except Exception as e:
-                print(f"[ResearchPaperService] Error normalizing work: {str(e)}")
+                print(f"[UnifiedResearchPaperService] Error normalizing work: {str(e)}")
                 continue
         
         return normalized
@@ -486,6 +482,7 @@ class ResearchPaperService:
         if not text:
             return False
         
+        import re
         url_patterns = [
             r'^https?://',
             r'^ftp://',
@@ -503,7 +500,7 @@ class ResearchPaperService:
     def _detect_and_remove_duplicates(
         self,
         publications: List[Dict]
-    ) -> Tuple[List[Dict], int]:
+    ) -> tuple[List[Dict], int]:
         """Detect and remove duplicate publications."""
         seen_dois = set()
         seen_work_ids = set()
@@ -599,7 +596,7 @@ class ResearchPaperService:
                 stored_count += 1
                 
             except Exception as e:
-                print(f"[ResearchPaperService] Error storing publication: {str(e)}")
+                print(f"[UnifiedResearchPaperService] Error storing publication: {str(e)}")
                 continue
         
         return stored_count

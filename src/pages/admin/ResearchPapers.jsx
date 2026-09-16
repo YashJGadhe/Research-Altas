@@ -265,11 +265,6 @@ const ResearchPapers = () => {
       return;
     }
 
-    if (selectedPlatform !== 'ORCID') {
-      setError('Only ORCID integration is currently available');
-      return;
-    }
-
     try {
       setFetching(true);
       setError('');
@@ -313,7 +308,23 @@ const ResearchPapers = () => {
         return;
       }
       
-      const result = await fetchOrcidPublications(selectedFaculty);
+      // Get faculty identifiers based on selected platform
+      const faculty = facultyList.find(f => f.id === selectedFaculty);
+      const identifiers = {};
+      
+      if (selectedPlatform === 'ORCID') {
+        identifiers.orcid_id = faculty?.orcid_id || '';
+      } else if (selectedPlatform === 'Scopus') {
+        identifiers.scopus_id = faculty?.scopus_id || '';
+      } else if (selectedPlatform === 'Google Scholar') {
+        identifiers.google_scholar_id = faculty?.google_scholar_id || '';
+      } else if (selectedPlatform === 'Web of Science') {
+        identifiers.wos_id = faculty?.wos_id || '';
+      }
+      
+      // Use the unified fetch API
+      const { fetchPublications } = await import('../../api/researchPaperApi');
+      const result = await fetchPublications(selectedFaculty, selectedPlatform, identifiers);
       
       setFetchStatus({
         fetched_count: result.fetched_count,
@@ -324,16 +335,16 @@ const ResearchPapers = () => {
       });
       
       if (result.success) {
-        setSuccess(`Successfully fetched ${result.unique_count} publications from ORCID`);
+        setSuccess(`Successfully fetched ${result.unique_count} publications from ${selectedPlatform}`);
         // Reload publications and statistics
         await loadPublications();
         await loadStatistics();
         await loadWorkTypes();
       } else {
-        setError(result.error || 'Failed to fetch publications');
+        setError(result.error || `Failed to fetch publications from ${selectedPlatform}`);
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch publications from ORCID');
+      setError(err.response?.data?.detail || `Failed to fetch publications from ${selectedPlatform}`);
       console.error(err);
     } finally {
       setFetching(false);
@@ -345,13 +356,25 @@ const ResearchPapers = () => {
     return faculty ? faculty.name : '';
   };
 
-  const hasOrcidId = () => {
+  const hasPlatformIdentifier = () => {
     // In demo mode, always return true to enable fetch button
     if (isDemoMode()) {
       return true;
     }
     const faculty = facultyList.find(f => f.id === selectedFaculty);
-    return faculty && faculty.orcid_id;
+    if (!faculty) return false;
+    
+    // Check for platform-specific identifier
+    if (selectedPlatform === 'ORCID') {
+      return !!faculty.orcid_id;
+    } else if (selectedPlatform === 'Scopus') {
+      return !!faculty.scopus_id;
+    } else if (selectedPlatform === 'Google Scholar') {
+      return !!faculty.google_scholar_id;
+    } else if (selectedPlatform === 'Web of Science') {
+      return !!faculty.wos_id;
+    }
+    return false;
   };
 
   return (
@@ -412,7 +435,7 @@ const ResearchPapers = () => {
           <div className="flex items-end">
             <button
               onClick={handleFetchPublications}
-              disabled={fetching || !selectedFaculty || !hasOrcidId()}
+              disabled={fetching || !selectedFaculty || !hasPlatformIdentifier()}
               className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {fetching ? (
@@ -435,9 +458,9 @@ const ResearchPapers = () => {
           </div>
         </div>
 
-        {!hasOrcidId() && selectedFaculty && (
+        {!hasPlatformIdentifier() && selectedFaculty && (
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
-            ⚠️ ORCID is not configured for this faculty member. Please add ORCID ID in Citation Management first.
+            ⚠️ {selectedPlatform} ID is not configured for this faculty member. Please add {selectedPlatform} ID in Citation Management first.
           </div>
         )}
       </div>

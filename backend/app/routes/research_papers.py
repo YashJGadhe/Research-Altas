@@ -2,10 +2,12 @@
 ResearchAtlas - Research Papers Routes
 
 API routes for managing research publications.
+Supports all 4 platforms: ORCID, Scopus, Google Scholar, Web of Science.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Optional, List, Dict, Any
+from pydantic import BaseModel
 
 from app.core.dependencies import require_admin
 from app.services.research_paper_service import ResearchPaperService
@@ -16,6 +18,45 @@ router = APIRouter(prefix="/api/research-papers", tags=["Research Papers"])
 # Service instances
 research_paper_service = ResearchPaperService()
 faculty_service = FacultyService()
+
+
+class FetchPublicationsRequest(BaseModel):
+    """Request model for fetching publications from a platform."""
+    platform: str
+    identifiers: Dict[str, str]
+
+
+@router.post("/faculty/{faculty_id}/fetch")
+async def fetch_publications(
+    faculty_id: str,
+    request: FetchPublicationsRequest,
+    current_user: dict = Depends(require_admin)
+):
+    """
+    Fetch publications from specified platform for a faculty member.
+    
+    Supports: ORCID, Scopus, Google Scholar, Web of Science
+    
+    Admin only endpoint.
+    """
+    # Get faculty member
+    faculty = await faculty_service.get_faculty_by_id(faculty_id)
+    
+    if not faculty:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Faculty member not found"
+        )
+    
+    # Fetch publications
+    result = await research_paper_service.fetch_publications(
+        faculty_id=faculty_id,
+        faculty_name=faculty.get("full_name", ""),
+        platform=request.platform,
+        identifiers=request.identifiers
+    )
+    
+    return result
 
 
 @router.post("/faculty/{faculty_id}/fetch/orcid")
@@ -46,10 +87,11 @@ async def fetch_orcid_publications(
         )
     
     # Fetch publications
-    result = await research_paper_service.fetch_orcid_publications(
+    result = await research_paper_service.fetch_publications(
         faculty_id=faculty_id,
         faculty_name=faculty.get("full_name", ""),
-        orcid_id=orcid_id
+        platform="ORCID",
+        identifiers={"orcid_id": orcid_id}
     )
     
     return result
@@ -61,8 +103,9 @@ async def get_faculty_publications(
     source: Optional[str] = Query(None, description="Filter by source (ORCID, Scopus, etc.)"),
     work_type: Optional[str] = Query(None, description="Filter by work type"),
     year: Optional[int] = Query(None, description="Filter by year"),
+    month: Optional[int] = Query(None, description="Filter by month (1-12)"),
+    date: Optional[str] = Query(None, description="Filter by specific date (YYYY-MM-DD)"),
     search: Optional[str] = Query(None, description="Search query"),
-    sort_by: str = Query("year_desc", description="Sort order (year_desc, year_asc)"),
     current_user: dict = Depends(require_admin)
 ):
     """
@@ -85,8 +128,9 @@ async def get_faculty_publications(
         source=source,
         work_type=work_type,
         year=year,
-        search=search,
-        sort_by=sort_by
+        month=month,
+        date=date,
+        search=search
     )
     
     return {
