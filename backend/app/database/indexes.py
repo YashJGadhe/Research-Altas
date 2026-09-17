@@ -1,4 +1,4 @@
-from app.database.mongodb import get_database
+from app.database.database import get_database
 
 
 async def create_indexes():

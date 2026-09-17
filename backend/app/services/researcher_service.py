@@ -19,7 +19,7 @@ from app.models.publication import (
     MongoDBPublication,
     MongoDBResearcher
 )
-from app.database.mongodb import get_database
+from app.database.database import get_database
 
 
 class UnifiedResearcherService:

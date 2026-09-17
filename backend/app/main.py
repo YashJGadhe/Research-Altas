@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.database.mongodb import connect_to_mongo, close_mongo_connection
+from app.database.database import connect_to_mongodb, close_mongodb_connection
 from app.database.indexes import create_indexes
 from app.database.init_db import initialize_database
 from app.routes.researchers import router as researchers_router
@@ -22,11 +22,11 @@ from app.routes.user import router as user_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    await connect_to_mongo()
+    await connect_to_mongodb()
     await initialize_database()
     yield
     # Shutdown
-    await close_mongo_connection()
+    await close_mongodb_connection()
 
 
 app = FastAPI(
