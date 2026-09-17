@@ -103,3 +103,50 @@ class MongoDBResearcher(BaseModel):
     last_synced_at: Optional[datetime] = None
     sync_status: str = "pending"
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Publication:
+    """Publication model for MongoDB storage"""
+    COLLECTION_NAME = "publications"
+    
+    @staticmethod
+    def to_list_response(publications):
+        """Convert list of publication dicts to response format"""
+        result = []
+        for pub in publications:
+            result.append({
+                "id": str(pub.get("_id", "")),
+                "faculty_id": pub.get("faculty_id", ""),
+                "faculty_name": pub.get("faculty_name", ""),
+                "source": pub.get("source", ""),
+                "source_work_id": pub.get("source_work_id", ""),
+                "paper_name": pub.get("paper_name", ""),
+                "year": pub.get("year"),
+                "date": pub.get("date", ""),
+                "author_name": pub.get("author_name", ""),
+                "work_type": pub.get("work_type", ""),
+                "work_type_raw": pub.get("work_type_raw", ""),
+                "doi": pub.get("doi", ""),
+                "url": pub.get("url", ""),
+                "citation_count": pub.get("citation_count"),
+                "publication_name": pub.get("publication_name", ""),
+                "scopus_id": pub.get("scopus_id"),
+                "wos_id": pub.get("wos_id"),
+                "issn": pub.get("issn", ""),
+                "eissn": pub.get("eissn", ""),
+                "isbn": pub.get("isbn", ""),
+                "volume": pub.get("volume", ""),
+                "issue": pub.get("issue", ""),
+                "pages": pub.get("pages", ""),
+                "publisher": pub.get("publisher", ""),
+                "is_duplicate": pub.get("is_duplicate", False),
+                "fetched_at": pub.get("fetched_at").isoformat() if pub.get("fetched_at") else None,
+                "created_at": pub.get("created_at").isoformat() if pub.get("created_at") else None,
+                "updated_at": pub.get("updated_at").isoformat() if pub.get("updated_at") else None
+            })
+        return result
+
+
+class PublicationHistory:
+    """Publication history model for tracking changes"""
+    COLLECTION_NAME = "publication_history"
